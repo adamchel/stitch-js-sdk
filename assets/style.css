@@ -17,12 +17,16 @@
   color: #fff;
 }
 
-.list-section-header {
-  padding-top: 10px
-}
-
 .bg-white {
   background-color: #fff;
+}
+
+.list-section-header {
+  margin-top: 20px
+}
+
+.list-symbol {
+  font-family: Source Code Pro,Menlo,Consolas,Liberation Mono,monospace;
 }
 
 h4 {
