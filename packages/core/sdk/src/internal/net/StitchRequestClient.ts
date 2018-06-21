@@ -34,6 +34,7 @@ function inspectResponse(response: Response): Response {
   return handleRequestError(response);
 }
 
+/** @hidden */
 export default class StitchRequestClient {
   private readonly baseURL: string;
   private readonly transport: Transport;

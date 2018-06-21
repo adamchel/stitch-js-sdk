@@ -140,6 +140,7 @@ class HttpResponseDecoder implements Decoder<HttpResponse> {
   }
 }
 
+/** @hidden */
 export default class ResultDecoders {
   public static readonly HttpResponseDecoder: Decoder<
     HttpResponse

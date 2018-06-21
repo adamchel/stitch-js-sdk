@@ -15,7 +15,10 @@
  */
 
 
-/** HTTP Header definitions and helper methods. */
+/** 
+ * @hidden
+ * HTTP Header definitions and helper methods. 
+ */
 export default class Headers {
   public static readonly CONTENT_TYPE_CANON = "Content-Type";
   public static readonly CONTENT_TYPE = Headers.CONTENT_TYPE_CANON.toLocaleLowerCase();

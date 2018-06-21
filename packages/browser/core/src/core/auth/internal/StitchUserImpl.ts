@@ -22,6 +22,7 @@ import {
 import StitchUser from "../StitchUser";
 import StitchAuthImpl from "./StitchAuthImpl";
 
+/** @hidden */
 export default class StitchUserImpl extends CoreStitchUserImpl
   implements StitchUser {
   private readonly auth: StitchAuthImpl;

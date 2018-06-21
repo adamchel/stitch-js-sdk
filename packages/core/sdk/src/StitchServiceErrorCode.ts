@@ -71,6 +71,7 @@ Object.entries(StitchServiceErrorCode).forEach(([key, value]) => {
   apiErrorCodes[value] = StitchServiceErrorCode[key];
 });
 
+/** @hidden */
 export function stitchServiceErrorCodeFromApi(code : string) : StitchServiceErrorCode {
   if (!(code in apiErrorCodes)) {
     return StitchServiceErrorCode.Unknown;

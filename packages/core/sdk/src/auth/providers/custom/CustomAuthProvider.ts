@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-
+/** @hidden */
 export default class CustomAuthProvider {
   private constructor() {}
 

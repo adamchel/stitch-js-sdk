@@ -27,6 +27,7 @@ import StitchServiceImpl from "../../services/internal/StitchServiceImpl";
 import StitchAuthImpl from "../auth/internal/StitchAuthImpl";
 import StitchAppClient from "../StitchAppClient";
 
+/** @hidden */
 export default class StitchAppClientImpl implements StitchAppClient {
   public readonly auth: StitchAuthImpl;
 

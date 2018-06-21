@@ -35,6 +35,7 @@ import StitchUser from "../StitchUser";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
 import version from "../../internal/common/Version";
 
+/** @hidden */
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
   private readonly appInfo: StitchAppClientInfo;

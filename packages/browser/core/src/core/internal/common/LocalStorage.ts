@@ -16,6 +16,7 @@
 
 import { Storage } from "mongodb-stitch-core-sdk";
 
+/** @hidden */
 export default class LocalStorage implements Storage {
   constructor(private readonly suiteName: string) {}
 
