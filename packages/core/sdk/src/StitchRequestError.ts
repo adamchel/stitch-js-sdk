@@ -35,7 +35,7 @@ export default class StitchRequestError extends StitchError {
   /**
    * The underlying Error that caused this request exception.
    */
-  private readonly underlyingError: Error;
+  public readonly underlyingError: Error;
 
   /**
    * Constructs a request exception from the underlying exception and error code.
