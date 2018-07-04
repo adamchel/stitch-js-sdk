@@ -292,7 +292,7 @@ An SDK MUST have a StitchAppClient interface, which serves as the primary means 
 
 For the methods that make network requests, the following list enumerates how each of the requests should be constructed, as well as the shapes of the responses from the Stitch server:
 
-*  ``callFunction``
+*  **``callFunction``**
 
    -  **Authenticated**: yes, with access token
    -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/functions/call``
