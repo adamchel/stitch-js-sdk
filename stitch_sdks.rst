@@ -295,7 +295,7 @@ For the methods that make network requests, the following list enumerates how ea
 - ``callFunction``
    - Authenticated: yes, with access token
    - Endpoint: ``POST /api/client/v2.0/app/<client_app_id>/functions/call``
-   - Request Body:
+   - Request Body: why tho
       - 
         ::
             
@@ -306,6 +306,164 @@ For the methods that make network requests, the following list enumerates how ea
 
       - The arguments field in the request body MUST be encoded as canonical extended JSON. See the specification on `MongoDB Extended JSON <https://github.com/mongodb/specifications/blob/master/source/extended-json.rst>`_ for more information.
 
-   - Response Shape:
+   - Response Shape: why tho
       - The MongoDB Extended JSON representation of the called Stitch function's return value.
 
+StitchAuth
+----------
+
+StitchAuthListener
+------------------
+
+StitchPush
+----------
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sample Push Client Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Client Configuration
+--------------------
+
+~~~~~~~~~~~~~~~~~~~~~~~~~
+StitchClientConfiguration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+StitchAppClientConfiguration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+User Information
+----------------
+
+~~~~~~~~~~
+StitchUser
+~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~~
+StitchUserProfile
+~~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~~~
+StitchUserIdentity
+~~~~~~~~~~~~~~~~~~
+
+Factories
+---------
+
+Authentication Credentials
+--------------------------
+
+
+~~~~~~~~~~~~~~~~
+StitchCredential
+~~~~~~~~~~~~~~~~
+
+
+ProviderCapabilities
+^^^^^^^^^^^^^^^^^^^^
+
+~~~~~~~~~~~~~~~~~~~
+AnonymousCredential
+~~~~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~
+CustomCredential
+~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~~~
+FacebookCredential
+~~~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~
+GoogleCredential
+~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~~~~~~~
+ServerApiKeyCredential
+~~~~~~~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~~~~~
+UserApiKeyCredential
+~~~~~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~~~~~~~
+UserPasswordCredential
+~~~~~~~~~~~~~~~~~~~~~~
+
+Authentication Provider Clients
+-------------------------------
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+UserApiKeyAuthProviderClient
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+UserApiKey
+^^^^^^^^^^
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+UserPasswordAuthProviderClient
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mechanism for Making Requests
+-----------------------------
+
+~~~~~~~~
+Endpoint
+~~~~~~~~
+
+~~~~~~~~~~~~~~
+Authentication
+~~~~~~~~~~~~~~
+
+Proactive Token Refresher
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+~~~~~~~~~~~~
+Request Body
+~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~
+Response Shape
+~~~~~~~~~~~~~~
+
+~~~~~~~~
+Behavior 
+~~~~~~~~
+
+Error Handling
+--------------
+
+~~~~~~~~~~~~~~
+Service Errors
+~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~
+Request Errors
+~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~
+Client Errors
+~~~~~~~~~~~~~
+
+Test Plan
+=========
+
+Motivation
+==========
+
+BackwardsCompatibility
+======================
+
+Reference Implementations
+=========================
+
+Q & A
+=====
+
+This section will be updated with frequently asked questions from end-user developers and SDK authors.
+
+Changes
+=======
+
+- 2018-07-06: Initial draft
