@@ -1680,7 +1680,7 @@ Client errors are errors that occur because the client is misconfigured or used 
 
    + Should be thrown/returned if a client attempts to use a StitchUser object to link to a new identity when that StitchUser has already been logged out.
 
-* ``CouldNotLoadPersistedAuthInfo``
+*  ``CouldNotLoadPersistedAuthInfo``
 
    + Should be thrown/returned if a client fails to load persisted authentication information when attempting to make an authenticated request.
 
