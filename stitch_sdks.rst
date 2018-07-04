@@ -413,6 +413,7 @@ For the methods that make network requests, the following list enumerates how ea
             }
 
       + The device information document contains the following key-value pairs:
+        
         +-----------------+------------------------------+--------------------------+
         | Key             | Value                        |                          |
         +-----------------+------------------------------+--------------------------+
