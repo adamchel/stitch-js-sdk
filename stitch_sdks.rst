@@ -296,8 +296,8 @@ For the methods that make network requests, the following list enumerates how ea
    - Authenticated: yes, with access tokens
    - Endpoint: ``POST /api/client/v2.0/app/<client_app_id>/functions/call``
    - Request Body:
-      + |
-        ::
+      + test
+         ::
             {
                 "name": (name argument),
                 "arguments": (args argument)
