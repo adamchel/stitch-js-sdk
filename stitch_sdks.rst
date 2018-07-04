@@ -36,7 +36,7 @@ Definitions
 META
 ----
 
-The keywords “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in `RFC 2119 <https://www.ietf.org/rfc/rfc2119.txt>`_.
+The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in `RFC 2119 <https://www.ietf.org/rfc/rfc2119.txt>`_.
 
 Terms
 -----
@@ -54,7 +54,7 @@ Authentication Provider
   An authentication principal in Stitch that can accept credentials to create a new Stitch user from an identity, or authenticate an existing identity. In either case, after successfully authenticating, Stitch issues access tokens and refresh tokens that the client SDK can use to make authenticated requests as a particular Stitch user. Examples of authentication providers include the username/password provider, and the Facebook OAuth2 provider.
 
 Service
-  Any third party extension that is supported by Stitch as a “service” in the Stitch UI.
+  Any third party extension that is supported by Stitch as a "service" in the Stitch UI.
 
 Mobile Device
   Any reference to a device using the iOS and/or Android platforms, natively or otherwise.
@@ -122,8 +122,8 @@ When deviating from a defined name, an author should consider if the altered nam
 
 A non-exhaustive list of acceptable naming deviations are as follows:
 
-- Using the property “isLoggedIn” as an example, Kotlin would use “loggedIn”, while Java would use “isLoggedIn()”. However, calling it “isAuthenticated” would not be acceptable.
-- Using the method “loginWithCredential” as an example, Java would use “loginWithCredential”, Swift would use “login(withCredential: ...“, and Python would use “login_with_credential. However, calling it “loginWithSecret” would not be acceptable.
+- Using the property "isLoggedIn" as an example, Kotlin would use "loggedIn", while Java would use "isLoggedIn()". However, calling it "isAuthenticated" would not be acceptable.
+- Using the method "loginWithCredential" as an example, Java would use "loginWithCredential", Swift would use "login(withCredential: ...", and Python would use "login_with_credential. However, calling it "loginWithSecret" would not be acceptable.
 - Using "loggedIn" rather than "isLoggedIn". Some languages idioms prefer the use of "is", "has", or "was" and this is acceptable.
 
 --------------
@@ -134,7 +134,7 @@ This section describes how a client SDK should communicate with Stitch and expos
 
 Each of the top-level headers in this section should be made available as a language-appropriate structure that can hold state and expose methods and properties. (e.g. class or interface with class implementation in Java, class or protocol with class/struct implementation in Swift).
 
-For the purposes of this section, we will use the terms “interface” and “object”, but appropriate language constructs can be substituted for each SDK.
+For the purposes of this section, we will use the terms "interface" and "object", but appropriate language constructs can be substituted for each SDK.
 
 If a method is marked as ASYNC ALLOWED, the method SHOULD be implemented to return its result in an asynchronous manner if it is appropriate for the environment. The mechanism for this will depend on the platform and environment (e.g. via Promises in ES6, Tasks for Android, closure callbacks in iOS). However, some environments may not require or desire methods with asynchronous behavior (e.g. Java Server SDK). 
 
@@ -145,7 +145,7 @@ When methods contain parameters that are wrapped in an optional type, the method
 Stitch
 ------
 
-An SDK MUST have a Stitch interface which serves as the entry-point for initializing and retrieving client objects. The interface is responsible for statically storing initialized app clients. If a language has a multithreaded model, the implementation of this interface SHOULD be thread safe. It it cannot be made in such a way, the documentation MUST state it. The following methods MUST be provided, unless otherwise specified in the comment for a particular method:
+An SDK MUST have a ``Stitch`` interface which serves as the entry-point for initializing and retrieving client objects. The interface is responsible for statically storing initialized app clients. If a language has a multithreaded model, the implementation of this interface SHOULD be thread safe. It it cannot be made in such a way, the documentation MUST state it. The following methods MUST be provided, unless otherwise specified in the comment for a particular method:
 
 .. code:: typescript
 
@@ -221,7 +221,7 @@ An SDK MUST have a Stitch interface which serves as the entry-point for initiali
 StitchAppClient
 ---------------
 
-An SDK MUST have a StitchAppClient interface, which serves as the primary means of communicating with the Stitch server. The following methods MUST be provided, unless otherwise specified in the comment for a particular method:
+An SDK MUST have a ``StitchAppClient`` interface, which serves as the primary means of communicating with the Stitch server. The following methods MUST be provided, unless otherwise specified in the comment for a particular method:
 
 .. code:: typescript
 
@@ -246,10 +246,10 @@ An SDK MUST have a StitchAppClient interface, which serves as the primary means 
       getPush(): StitchPush
 
       /**
-       * (REQUIRED - see “Factories” for exceptions) 
+       * (REQUIRED - see "Factories" for exceptions) 
        *
        * Gets a client for a particular named Stitch service.
-       * See the “Factories” section for details on the factory type.
+       * See the "Factories" section for details on the factory type.
        */
       getServiceClient<T>(
           factory: NamedServiceClientFactory<T>, 
@@ -257,10 +257,10 @@ An SDK MUST have a StitchAppClient interface, which serves as the primary means 
       ): T
 
       /**
-       * (REQUIRED - see “Factories” for exceptions)
+       * (REQUIRED - see "Factories" for exceptions)
        *
        * Gets a client for a particular Stitch service
-       * See the “Factories” section for details on the factory type.
+       * See the "Factories" section for details on the factory type.
        */
       getServiceClient<T>(factory: ServiceClientFactory<T>): T
 
@@ -292,7 +292,7 @@ An SDK MUST have a StitchAppClient interface, which serves as the primary means 
 
 For the methods that make network requests, the following list enumerates how each of the requests should be constructed, as well as the shapes of the responses from the Stitch server:
 
-*  **``callFunction``**
+*  ``callFunction``
 
    -  **Authenticated**: yes, with access token
    -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/functions/call``
@@ -315,6 +315,161 @@ For the methods that make network requests, the following list enumerates how ea
 
 StitchAuth
 ----------
+An SDK MUST have a ``StitchAuth`` interface, which serves as the primary means of authenticating with Stitch and viewing authentication status. A ``StitchAuth`` is considered part of a client, and the term "client" will refer to the combined functionality of the ``StitchAuth`` and the parent ``StitchAppClient``. The following methods and properties MUST be provided, unless otherwise specified in the comment for a particular method:
+
+.. code:: typescript
+
+  interface StitchAuth {
+      /**
+       * (REQUIRED - see "Factories" for exceptions)
+       *
+       * Gets a client for a particular authentication provider.
+       * See the "Factories" section for details on the factory type.
+       */
+      getProviderClient<T>(factory AuthProviderClientFactory<T>): T
+
+      /**
+       * (REQUIRED - see "Factories" for exceptions)
+       *
+       * Gets a client for a particular named authentication provider and 
+       * provider name. See the "Factories" section for details on the 
+       * factory type.
+       */
+      getProviderClient<T>(factory AuthProviderClientFactory<T>, 
+                           providerName: string): T
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Authenticates the Stitch client using the provided credential.
+       * If the login is successful, additionally fetch the profile of the user.
+       */
+      loginWithCredential(credential: StitchCredential): StitchUser
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED)
+       *
+       * Logs out the currently logged in user by clearing authentication
+       * tokens locally, and sending a request to the Stitch server to 
+       * invalidate the session. If the request fails, the error should be 
+       * ignored and the method should still succeed.
+       */
+      logout(): void
+
+      /**
+       * (REQUIRED)
+       *
+       * Whether or not the client is currently authenticated as a Stitch user.
+       */
+      loggedIn: boolean
+
+      /**
+       * (REQUIRED)
+       *
+       * A StitchUser object representing the Stitch user that the
+       * client is currently authenticated as. If the client is not
+       * authenticated, this should return an empty optional.
+       */
+      user: Optional<StitchUser>
+
+      /**
+       * (OPTIONAL) 
+       *
+       * Specifies a listener whose onAuthEvent method should be invoked
+       * whenever an authentication event occurs on this client. An 
+       * authentication event is defined as one of the following:
+       *     - a user is logged in
+       *     - a user is logged out
+       *     - a user is linked to another identity
+       *     - the listener is registered
+       */
+      addAuthListener(listener: StitchAuthListener): void
+
+      /**
+       * (OPTIONAL)
+       *
+       * Unregisters a listener from this client.
+       */
+      removeAuthListener(listener: StitchAuthListener): void    
+  }
+
+For the methods that make network requests, the following list enumerates how each of the requests should be constructed, as well as the shapes of the responses from the Stitch server:
+
+*  ``loginWithCredential`` - initial request
+
+   -  **Authenticated**: no
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/auth/providers/<provider_name>/login``
+   -  **Request Body**: 
+
+      + The material of the credential as an extended JSON document, (see `Authentication Credentials`_), merged with the following document: 
+        ::
+            
+            {
+                "options": {
+                    "device": {
+                        (device information document)
+                    }
+                }
+            }
+
+      + The device information document contains the following key-value pairs: TABLE TODO
+
+   -  **Response Shape**:
+
+      +
+        ::
+
+            {
+                "access_token": (string),
+                "user_id": (string),
+                "device_id": (string),
+                "refresh_token": (string)
+            }
+   -  **Behavior**:
+
+      + The ``StitchAuth`` is responsible for persisting the authentication information returned in the response (``access_token`` and ``refresh_token``) so that it can be used to make authenticated requests of the newly logged in user. The ``user_id`` and ``device_id`` should also be persisted so they can returned be as part of the ``StitchAuth``’s user property.
+
+      + If a user is already logged in when the call to ``loginWithCredential`` is made, the existing user MUST be logged out, unless the ``providerCapabilities`` property of the credential specifies that ``reusesExistingSession`` is true, and the the provider type of the credential is the same as the provider type of the currently logged in user.
+
+*  ``loginWithCredential`` - profile request
+
+   -  **Authenticated**: yes, with access token 
+   -  **Endpoint**: ``GET /api/client/v2.0/app/<client_app_id>/auth/profile``
+   -  **Response Shape**:
+
+      + Base:
+        ::
+
+            {
+                "type": (string),
+                "data": (subdocument of key-string pairs),
+                "identities": (array of identity objects)
+            }
+
+      + Identity:
+        ::
+
+            {
+                “id”: (string),
+                “provider_type”: (string)
+            }
+
+   -  **Behavior**:
+
+      + If the profile request fails, the currently authenticated user should be logged out. If the request succeeds, the contents of the response should be persisted such that ``StitchAuth`` will return a fully populated ``StitchUser`` for its user property.
+
+*  ``logout``
+
+   -  **Authenticated**: yes, with refresh token
+   -  **Endpoint**: ``DELETE /api/client/v2.0/app/<client_app_id>/auth/session``
+   -  **Response Shape**:
+
+      + Empty
+
+   -  **Behavior**:
+
+      + Even if this request fails, the currently logged in user should still be logged out by deleting the persisted authentication information. The error MAY be logged, but an error MUST NOT be thrown or returned. The request only serves to invalidate the user’s tokens.
+
 
 StitchAuthListener
 ------------------
