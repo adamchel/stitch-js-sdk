@@ -294,9 +294,9 @@ For the methods that make network requests, the following list enumerates how ea
 
 *  ``callFunction``
 
-   -  Authenticated: yes, with access token
-   -  Endpoint: ``POST /api/client/v2.0/app/<client_app_id>/functions/call``
-   -  Request Body: 
+   -  **Authenticated**: yes, with access token
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/functions/call``
+   -  **Request Body**: 
 
       + 
         ::
@@ -308,7 +308,7 @@ For the methods that make network requests, the following list enumerates how ea
 
       + The arguments field in the request body MUST be encoded as canonical extended JSON. See the specification on `MongoDB Extended JSON <https://github.com/mongodb/specifications/blob/master/source/extended-json.rst>`_ for more information.
 
-   -  Response Shape:
+   -  **Response Shape**:
 
       + The MongoDB Extended JSON representation of the called Stitch function's return value.
 
