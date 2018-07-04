@@ -428,8 +428,8 @@ For the methods that make network requests, the following list enumerates how ea
         |                 | local application            |                          |
         +-----------------+------------------------------+--------------------------+
         | platform        | The platform of the          | REQUIRED                 |
-        |                 | SDK (e.g. “Android”,         |                          |
-        |                 | “iOS”, etc.)                 |                          |
+        |                 | SDK (e.g. "Android",         |                          |
+        |                 | "iOS", etc.)                 |                          |
         +-----------------+------------------------------+--------------------------+
         | platformVersion | The version of the           | REQUIRED                 |
         |                 | SDK’s platform.              |                          |
@@ -474,8 +474,8 @@ For the methods that make network requests, the following list enumerates how ea
         ::
 
             {
-                “id”: (string),
-                “provider_type”: (string)
+                "id": (string),
+                "provider_type": (string)
             }
 
    -  **Behavior**:
@@ -529,10 +529,10 @@ An SDK MAY have a ``StitchPush`` interface, which is used for producing push pro
   interface StitchPush {
 
       /**
-       * (REQUIRED - see “Factories” for exceptions)
+       * (REQUIRED - see "Factories" for exceptions)
        *
        * Gets a push provider client for a particular named push provider 
-       * in Stitch. See the “Factories” section for details on the factory type.
+       * in Stitch. See the "Factories" section for details on the factory type.
        */
       getClient<T>(factory: NamedPushClientFactory<T>, serviceName: string): T
   }
@@ -544,7 +544,7 @@ Sample Push Client Interface
 
 The purpose of a push provider client is to register a Stitch user for push notifications that may be sent by another Stitch user or from the Stitch admin console. The push client does not necessarily set up the device to receive the notifications, because that functionality will generally require the use of a third-party SDK from a third-party messaging service.
 
-More commonly, the third-party messaging service will provide a “registration token” or some other unique identifying token for the device, and that token needs to be registered with the currently logged in Stitch user’s device so that push notifications sent to a particular user are also sent to the device with that registration token.
+More commonly, the third-party messaging service will provide a "registration token" or some other unique identifying token for the device, and that token needs to be registered with the currently logged in Stitch user’s device so that push notifications sent to a particular user are also sent to the device with that registration token.
 
 A sample push client implementation is as follows:
 
@@ -588,7 +588,7 @@ An SDK MUST have a ``StitchClientConfiguration`` interface, which defines the lo
        * (REQUIRED)
        *
        * The base URL of the Stitch server that the client will communicate
-       * with. By default, this should be “https://stitch.mongodb.com”.
+       * with. By default, this should be "https://stitch.mongodb.com".
        */
       baseUrl: string
 
@@ -717,7 +717,7 @@ An SDK must have a ``StitchUser`` interface, which exposes properties about a St
       /**
        * (REQUIRED)
        *
-       * The type of this user (“normal” for normal users, or “server” for users
+       * The type of this user ("normal" for normal users, or "server" for users
        * authenticated using the server API key authentication provider.
        */
       userType: string (or UserType enum)
@@ -764,8 +764,8 @@ For the methods that make network requests, the following list enumerates how ea
         ::
 
             {
-                “access_token”: (string),
-                “user_id”: (string)
+                "access_token": (string),
+                "user_id": (string)
             }
 
    -  **Behavior**:
@@ -1008,9 +1008,9 @@ An SDK MUST have an ``AnonymousCredential`` interface which supports logging in 
 The following table enumerates the properties that an ``AnonymousCredential`` should have when inheriting the ``StitchCredential`` interface:
 
 +----------------------+-----------------------------------------------+
-| providerName         | “anon-user”                                   |
+| providerName         | "anon-user"                                   |
 +----------------------+-----------------------------------------------+
-| providerType         | “anon-user”                                   |
+| providerType         | "anon-user"                                   |
 +----------------------+-----------------------------------------------+
 | material             | { }                                           |
 +----------------------+-----------------------------------------------+
@@ -1033,11 +1033,11 @@ An SDK MUST have a ``CustomCredential`` interface which supports logging in with
 The following table enumerates the properties that a ``CustomCredential`` should have when inheriting the ``StitchCredential`` interface:
 
 +----------------------+-----------------------------------------------+
-| providerName         | “custom-token”                                |
+| providerName         | "custom-token"                                |
 +----------------------+-----------------------------------------------+
-| providerType         | “custom-token”                                |
+| providerType         | "custom-token"                                |
 +----------------------+-----------------------------------------------+
-| material             | { “token”: tokenFromConstructor }             |
+| material             | { "token": tokenFromConstructor }             |
 +----------------------+-----------------------------------------------+
 | providerCapabilities | { reusesExistingSession: false }              |
 +----------------------+-----------------------------------------------+
@@ -1057,11 +1057,11 @@ An SDK MUST have a ``FacebookCredential`` interface which supports logging in wi
 The following table enumerates the properties that a ``FacebookCredential`` should have when inheriting the ``StitchCredential`` interface:
 
 +----------------------+-----------------------------------------------+
-| providerName         | “oauth2-facebook”                             |
+| providerName         | "oauth2-facebook"                             |
 +----------------------+-----------------------------------------------+
-| providerType         | “oauth2-facebook”                             |
+| providerType         | "oauth2-facebook"                             |
 +----------------------+-----------------------------------------------+
-| material             | { “accessToken”: accessTokenFromConstructor } |
+| material             | { "accessToken": accessTokenFromConstructor } |
 +----------------------+-----------------------------------------------+
 | providerCapabilities | { reusesExistingSession: false }              |
 +----------------------+-----------------------------------------------+
@@ -1082,11 +1082,11 @@ An SDK MUST have a ``GoogleCredential`` interface which supports logging in with
 The following table enumerates the properties that a ``GoogleCredential`` should have when inheriting the ``StitchCredential`` interface:
 
 +----------------------+-----------------------------------------------+
-| providerName         | “oauth2-google”                               |
+| providerName         | "oauth2-google"                               |
 +----------------------+-----------------------------------------------+
-| providerType         | “oauth2-google”                               |
+| providerType         | "oauth2-google"                               |
 +----------------------+-----------------------------------------------+
-| material             | { “authCode”: authCodeFromConstructor }       |
+| material             | { "authCode": authCodeFromConstructor }       |
 +----------------------+-----------------------------------------------+
 | providerCapabilities | { reusesExistingSession: false }              |
 +----------------------+-----------------------------------------------+
@@ -1107,11 +1107,11 @@ An SDK MUST have a ``ServerApiKeyCredential`` interface which supports logging i
 The following table enumerates the properties that a ``ServerApiKeyCredential`` should have when inheriting the ``StitchCredential`` interface:
 
 +----------------------+-----------------------------------------------+
-| providerName         | “api-key”                                     |
+| providerName         | "api-key"                                     |
 +----------------------+-----------------------------------------------+
-| providerType         | “api-key”                                     |
+| providerType         | "api-key"                                     |
 +----------------------+-----------------------------------------------+
-| material             | { “key”: keyFromConstructor }                 |
+| material             | { "key": keyFromConstructor }                 |
 +----------------------+-----------------------------------------------+
 | providerCapabilities | { reusesExistingSession: false }              |
 +----------------------+-----------------------------------------------+
@@ -1132,11 +1132,11 @@ An SDK MUST have a ``UserApiKeyCredential`` interface which supports logging in 
 The following table enumerates the properties that a ``UserApiKeyCredential`` should have when inheriting the ``StitchCredential`` interface:
 
 +----------------------+-----------------------------------------------+
-| providerName         | “api-key”                                     |
+| providerName         | "api-key"                                     |
 +----------------------+-----------------------------------------------+
-| providerType         | “api-key”                                     |
+| providerType         | "api-key"                                     |
 +----------------------+-----------------------------------------------+
-| material             | { “key”: keyFromConstructor }                 |
+| material             | { "key": keyFromConstructor }                 |
 +----------------------+-----------------------------------------------+
 | providerCapabilities | { reusesExistingSession: false }              |
 +----------------------+-----------------------------------------------+
@@ -1157,11 +1157,11 @@ An SDK MUST have a ``UserPasswordCredential`` interface which supports logging i
 The following table enumerates the properties that a ``UserPasswordCredential`` should have when inheriting the ``StitchCredential`` interface:
 
 +----------------------+-------------------------------------------------------------------------------+
-| providerName         | “local-userpass”                                                              |
+| providerName         | "local-userpass"                                                              |
 +----------------------+-------------------------------------------------------------------------------+
-| providerType         | “local-userpass”                                                              |
+| providerType         | "local-userpass"                                                              |
 +----------------------+-------------------------------------------------------------------------------+
-| material             | {  “username”: usernameFromConstructor, “password”: passwordFromConstructor } |
+| material             | {  "username": usernameFromConstructor, "password": passwordFromConstructor } |
 +----------------------+-------------------------------------------------------------------------------+
 | providerCapabilities | { reusesExistingSession: false }                                              |
 +----------------------+-------------------------------------------------------------------------------+
@@ -1241,7 +1241,7 @@ For the methods that make network requests, the following list enumerates how ea
         ::
             
             {
-                “name”: (name argument)
+                "name": (name argument)
             }
 
    -  **Response Shape**:
@@ -1250,10 +1250,10 @@ For the methods that make network requests, the following list enumerates how ea
         ::
 
             {
-                “_id”: (string),
-                “key”: (string),
-                “name”: (string),
-                “disabled”: (boolean)
+                "_id": (string),
+                "key": (string),
+                "name": (string),
+                "disabled": (boolean)
             }
    -  **Behavior**:
 
@@ -1269,9 +1269,9 @@ For the methods that make network requests, the following list enumerates how ea
         ::
 
             {
-                “_id”: (string),
-                “name”: (string),
-                “disabled”: (boolean)
+                "_id": (string),
+                "name": (string),
+                "disabled": (boolean)
             }
    -  **Behavior**:
 
@@ -1287,9 +1287,9 @@ For the methods that make network requests, the following list enumerates how ea
         ::
 
             [{
-                “_id”: (string),
-                “name”: (string),
-                “disabled”: (boolean)
+                "_id": (string),
+                "name": (string),
+                "disabled": (boolean)
             }, ...]
    -  **Behavior**:
 
@@ -1426,8 +1426,8 @@ For the methods that make network requests, the following list enumerates how ea
         ::
             
             {
-                “email”: (email argument),
-                “password”: (password argument)
+                "email": (email argument),
+                "password": (password argument)
             }
 
    -  **Response Shape**:
@@ -1444,8 +1444,8 @@ For the methods that make network requests, the following list enumerates how ea
         ::
             
             {
-                “token”: (token argument),
-                “tokenId”: (tokenId argument)
+                "token": (token argument),
+                "tokenId": (tokenId argument)
             }
 
    -  **Response Shape**:
@@ -1462,7 +1462,7 @@ For the methods that make network requests, the following list enumerates how ea
         ::
             
             {
-                “email”: (email argument)
+                "email": (email argument)
             }
 
    -  **Response Shape**:
@@ -1479,9 +1479,9 @@ For the methods that make network requests, the following list enumerates how ea
         ::
             
             {
-                “token”: (token argument),
-                “tokenId”: (tokenId argument),
-                “password”: (password argument)
+                "token": (token argument),
+                "tokenId": (tokenId argument),
+                "password": (password argument)
             }
 
    -  **Response Shape**:
@@ -1498,7 +1498,7 @@ For the methods that make network requests, the following list enumerates how ea
         ::
             
             {
-                “email”: (email argument)
+                "email": (email argument)
             }
 
    -  **Response Shape**:
@@ -1521,7 +1521,7 @@ Every request has an endpoint to which the request should be made. This endpoint
 Authentication
 ~~~~~~~~~~~~~~
 
-A request to the Stitch server can either be made on behalf of no user (an “unauthenticated request”), or on behalf of the client’s currently authenticated user (an “authenticated request”). 
+A request to the Stitch server can either be made on behalf of no user (an "unauthenticated request"), or on behalf of the client’s currently authenticated user (an "authenticated request"). 
 
 Unauthenticated requests are generally used for requests that are made when no user is logged in (e.g. login, user registration, password reset), and authenticated requests are generally used for requests that are made when a user is logged in (e.g. profile retrieval, Stitch function calls, logout).
 
@@ -1551,7 +1551,7 @@ An access token can be refreshed with the following request:
         ::
 
             {
-                “access_token”: (string)
+                "access_token": (string)
             }
    -  **Behavior**:
 
@@ -1618,8 +1618,8 @@ The response body of a service error will most likely be in the following format
 ::
 
   {
-      “error”: (string containing error message),
-      “error_code”: (string denoting error code)
+      "error": (string containing error message),
+      "error_code": (string denoting error code)
   }
 
 The SDK MUST parse this response to produce an error interface containing an error message and error code. An SDK SHOULD represent the possible error codes as an enumeration. The reference implementations of the SDK will have the latest list of possible error codes, but the enumeration should always include the ``Unknown`` case for unrecognized codes or improperly constructed responses.
@@ -1630,7 +1630,7 @@ If the response is not in this format, the produced error interface should use t
 
   404 page not found
 
-The produced error interface should have the error message “404 page not found”, and the error code ``Unknown``.
+The produced error interface should have the error message "404 page not found", and the error code ``Unknown``.
 
 
 ~~~~~~~~~~~~~~
@@ -1673,15 +1673,19 @@ Client errors are errors that occur because the client is misconfigured or used 
    + Should be thrown/returned if a client is logged out when attempting to refresh an access token.
 
 *  ``MustAuthenticateFirst``
+
    + Should be thrown/returned if a client attempts to make an authenticated request without being logged in.
 
 *  ``UserNoLongerValid``
+
    + Should be thrown/returned if a client attempts to use a StitchUser object to link to a new identity when that StitchUser has already been logged out.
 
 * ``CouldNotLoadPersistedAuthInfo``
+
    + Should be thrown/returned if a client fails to load persisted authentication information when attempting to make an authenticated request.
 
 *  ``CouldNotPersistAuthInfo``
+
    + Should be thrown/returned if a client fails to persist authentication information after a successful login, link, or access token refresh request.
 
 An SDK MAY define additional client error codes if appropriate for the language, environment, or internal client implementation.
