@@ -92,11 +92,11 @@ Deviations
 
 A non-exhaustive list of acceptable deviations are as follows:
 
-* Using named parameters instead of an options hash. For instance, ``collection.find({x:1}, sort: {a: -1})``.
+- Using named parameters instead of an options hash. For instance, ``collection.find({x:1}, sort: {a: -1})``.
 
-* When using an ``Options`` class, if multiple ``Options`` classes are structurally equatable, it is permissible to consolidate them into one with a clear name. For instance, it would be permissible to use the name ``UpdateOptions`` as the options for ``UpdateOne`` and ``UpdateMany``.
+- When using an ``Options`` class, if multiple ``Options`` classes are structurally equatable, it is permissible to consolidate them into one with a clear name. For instance, it would be permissible to use the name ``UpdateOptions`` as the options for ``UpdateOne`` and ``UpdateMany``.
 
-* Using a fluent style builder for find or aggregate:
+- Using a fluent style builder for find or aggregate:
 
   .. code:: typescript
 
@@ -122,9 +122,9 @@ When deviating from a defined name, an author should consider if the altered nam
 
 A non-exhaustive list of acceptable naming deviations are as follows:
 
-* Using the property “isLoggedIn” as an example, Kotlin would use “loggedIn”, while Java would use “isLoggedIn()”. However, calling it “isAuthenticated” would not be acceptable.
-* Using the method “loginWithCredential” as an example, Java would use “loginWithCredential”, Swift would use “login(withCredential: ...“, and Python would use “login_with_credential. However, calling it “loginWithSecret” would not be acceptable.
-* Using "loggedIn" rather than "isLoggedIn". Some languages idioms prefer the use of "is", "has", or "was" and this is acceptable.
+- Using the property “isLoggedIn” as an example, Kotlin would use “loggedIn”, while Java would use “isLoggedIn()”. However, calling it “isAuthenticated” would not be acceptable.
+- Using the method “loginWithCredential” as an example, Java would use “loginWithCredential”, Swift would use “login(withCredential: ...“, and Python would use “login_with_credential. However, calling it “loginWithSecret” would not be acceptable.
+- Using "loggedIn" rather than "isLoggedIn". Some languages idioms prefer the use of "is", "has", or "was" and this is acceptable.
 
 --------------
 Client SDK API
@@ -466,4 +466,4 @@ This section will be updated with frequently asked questions from end-user devel
 Changes
 =======
 
-* 2018-07-06: Initial draft
+- 2018-07-06: Initial draft
