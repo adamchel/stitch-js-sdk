@@ -1174,70 +1174,558 @@ Authentication Provider Clients
 UserApiKeyAuthProviderClient
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+An SDK MUST have a ``UserApiKeyAuthProviderClient`` interface which supports the creation, modification, and deletion of user API keys. The ``UserApiKeyAuthProviderClient`` MUST be constructible by the ``getProviderClient`` method on ``StitchAuth`` using a factory, or with an acceptable alternative approach where appropriate (see `Factories`_ for details).
+
+The following methods MUST be provided:
+
+.. code:: typescript
+
+  interface UserApiKeyAuthProviderClient {
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Creates a user API key which can be used to authenticate as the 
+       * current user. Returns a UserApiKey with the key string specified.
+       */
+      createApiKey(name: string): UserApiKey
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Feteches a user API key associated with the current user, using the 
+       * specified key id.
+       */
+      fetchApiKey(id: BsonObjectId): UserApiKey
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Fetches all of the user API keys associated with the current user.
+       */
+      fetchApiKeys(): List<UserApiKey>
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Deletes a user API key associated with the current user, using the
+       * specified key id.
+       */
+      deleteApiKey(id: BsonObjectId): void
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Enables a user API key associated with the current user, using the
+       * specified key id.
+       */
+      enableApiKey(id: BsonObjectId): void
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Disables a user API key associated with the current user, using the
+       * specified key id.
+       */
+      disableApiKey(id: BsonObjectId): void
+  }
+
+For the methods that make network requests, the following list enumerates how each of the requests should be constructed, as well as the shapes of the responses from the Stitch server:
+
+*  ``createApiKey``
+
+   -  **Authenticated**: yes, with refresh token
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/auth/api_keys``
+   -  **Request Body**: 
+
+      + 
+        ::
+            
+            {
+                “name”: (name argument)
+            }
+
+   -  **Response Shape**:
+
+      +
+        ::
+
+            {
+                “_id”: (string),
+                “key”: (string),
+                “name”: (string),
+                “disabled”: (boolean)
+            }
+   -  **Behavior**:
+
+      + A ``UserApiKey`` object should be constructed using the contents of the response.
+
+*  ``fetchApiKey``
+
+   -  **Authenticated**: yes, with refresh token
+   -  **Endpoint**: ``GET /api/client/v2.0/app/<client_app_id>/auth/api_keys/<key_id>``
+   -  **Response Shape**:
+
+      +
+        ::
+
+            {
+                “_id”: (string),
+                “name”: (string),
+                “disabled”: (boolean)
+            }
+   -  **Behavior**:
+
+      + A ``UserApiKey`` object should be constructed using the contents of the response.
+
+*  ``fetchApiKeys``
+
+   -  **Authenticated**: yes, with refresh token
+   -  **Endpoint**: ``GET /api/client/v2.0/app/<client_app_id>/auth/api_keys``
+   -  **Response Shape**:
+
+      +
+        ::
+
+            [{
+                “_id”: (string),
+                “name”: (string),
+                “disabled”: (boolean)
+            }, ...]
+   -  **Behavior**:
+
+      + A list of ``UserApiKey`` objects should be constructed using the contents of the response.
+
+*  ``deleteApiKey``
+
+   -  **Authenticated**: yes, with refresh token
+   -  **Endpoint**: ``DELETE /api/client/v2.0/app/<client_app_id>/auth/api_keys/<key_id>``
+   -  **Response Shape**:
+
+      + Empty
+
+*  ``enableApiKey``
+
+   -  **Authenticated**: yes, with refresh token
+   -  **Endpoint**: ``PUT /api/client/v2.0/app/<client_app_id>/auth/api_keys/<key_id>/enable``
+   -  **Response Shape**:
+
+      + Empty
+
+*  ``disableApiKey``
+
+   -  **Authenticated**: yes, with refresh token
+   -  **Endpoint**: ``PUT /api/client/v2.0/app/<client_app_id>/auth/api_keys/<key_id>/disable``
+   -  **Response Shape**:
+
+      + Empty
+
+
 UserApiKey
 ^^^^^^^^^^
+
+An SDK MUST have a ``UserApiKey`` interface which represents a user API key (a key created by a Stitch user to sign in as that user via the user API key authentication provider). The following properties MUST be provided:
+
+.. code:: typescript
+
+  interface UserApiKey {
+
+      /**
+       * (REQUIRED)
+       *
+       * The id of this API key.
+       */
+      id: BsonObjectId
+
+      /**
+       * (REQUIRED)
+       *
+       * The actual API key. This should only be a non-empty optional when the 
+       * API key is created. Fetched API keys should always have an empty 
+       * optional for their key property.
+       */
+      key: Optional<string>
+
+      /**
+       * (REQUIRED)
+       *
+       * The name of this API key.
+       */
+      name: string
+
+      /**
+       * (REQUIRED)
+       *
+       * Whether or not this API key is currently disabled for login usage.
+       */
+      disabled: boolean
+  }
+
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 UserPasswordAuthProviderClient
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+An SDK MUST have a ``UserPasswordAuthProviderClient`` interface which exposes the functionality of the username/password authentication provider related to creating and recovering user identities associated with an email address. The ``UserPasswordAuthProviderClient`` MUST be constructible by the ``getProviderClient`` method on ``StitchAuth`` using a factory, or with an acceptable alternative approach where appropriate (see `Factories`_ for details).
+
+The following methods MUST be provided:
+
+.. code:: typescript
+
+  interface UserPasswordAuthProviderClient {
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Registers a new identity with the username/password authentication
+       * provider. This creates an identity, but no Stitch user will be created
+       * unless the identity is used to log in before it is used to link to an
+       * existing user.
+       */
+      registerWithEmail(email: string, password: string): void
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Confirms a newly registered user identity with the token and
+       * token id that were sent to the newly registered email.
+       */
+      confirmUser(token: string, tokenId: string): void
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Resends the confirmation email for a newly registered identity.
+       */
+      resendConfirmationEmail(email: string): void
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Resets the password of an existing username/password identity with
+       * the token and token id that were sent in the password reset email.
+       */
+      resetPassword(token: string, tokenId: string, password: string): void
+
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Sends a password reset email to a given email address associated 
+       * with an existing identity.
+       */
+      sendResetPasswordEmail(email: string)
+  }
+
+For the methods that make network requests, the following list enumerates how each of the requests should be constructed, as well as the shapes of the responses from the Stitch server:
+
+*  ``registerWithEmail``
+
+   -  **Authenticated**: no
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/auth/providers/local-userpass/register``
+   -  **Request Body**: 
+
+      + 
+        ::
+            
+            {
+                “email”: (email argument),
+                “password”: (password argument)
+            }
+
+   -  **Response Shape**:
+
+      + Empty
+
+*  ``confirmUser``
+
+   -  **Authenticated**: no
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/auth/providers/local-userpass/confirm``
+   -  **Request Body**: 
+
+      + 
+        ::
+            
+            {
+                “token”: (token argument),
+                “tokenId”: (tokenId argument)
+            }
+
+   -  **Response Shape**:
+
+      + Empty
+
+*  ``resendConfirmationEmail``
+
+   -  **Authenticated**: no
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/auth/providers/local-userpass/confirm/send``
+   -  **Request Body**: 
+
+      + 
+        ::
+            
+            {
+                “email”: (email argument)
+            }
+
+   -  **Response Shape**:
+
+      + Empty
+
+*  ``resetPassword``
+
+   -  **Authenticated**: no
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/auth/providers/local-userpass/reset``
+   -  **Request Body**: 
+
+      + 
+        ::
+            
+            {
+                “token”: (token argument),
+                “tokenId”: (tokenId argument),
+                “password”: (password argument)
+            }
+
+   -  **Response Shape**:
+
+      + Empty
+
+*  ``sendResetPasswordEmail``
+
+   -  **Authenticated**: no
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/auth/providers/local-userpass/reset/send``
+   -  **Request Body**: 
+
+      + 
+        ::
+            
+            {
+                “email”: (email argument)
+            }
+
+   -  **Response Shape**:
+
+      + Empty
+
+
 Mechanism for Making Requests
 -----------------------------
+
+A Stitch SDK provides its core functionality by making HTTP requests to the Stitch server. Throughout this specification, there are descriptions of how requests should be made for certain methods. This section describes in detail how the requests should be structured and carried out based on those descriptions.
 
 ~~~~~~~~
 Endpoint
 ~~~~~~~~
 
+Every request has an endpoint to which the request should be made. This endpoint should be appended to the base URL configured in the Stitch client. By default, this base URL is ``https://stitch.mongodb.com``.
+
 ~~~~~~~~~~~~~~
 Authentication
 ~~~~~~~~~~~~~~
 
+A request to the Stitch server can either be made on behalf of no user (an “unauthenticated request”), or on behalf of the client’s currently authenticated user (an “authenticated request”). 
+
+Unauthenticated requests are generally used for requests that are made when no user is logged in (e.g. login, user registration, password reset), and authenticated requests are generally used for requests that are made when a user is logged in (e.g. profile retrieval, Stitch function calls, logout).
+
+For unauthenticated requests, an ``Authorization`` header MUST NOT be included.
+
+For authenticated requests, an ``Authorization`` header MUST be included. The contents of this header depend on whether the request uses a refresh token or an access token. A refresh token is a permanent (until invalidated) token, whereas an access token is for temporary use and expires after 30 minutes.
+
+The description for each request in this specification specifies the type of token that should be included. The contents of the ``Authorization`` header should be one of the following:
+
+* ``Bearer <access_token>``
+* ``Bearer <refresh_token>``
+
+The token should be retrieved from the authentication information that a ``StitchAuth`` persisted when ``loginWithCredential`` or ``linkWithCredential`` was called, or when an access token was refreshed. If no user is currently logged in, the client should throw/return a client error.
+
+When an authenticated request is completed, it is possible that the response will contain a service error with the error code ``InvalidSession``. This denotes that the access token or refresh token provided for the request is no longer valid because it expired or was invalidated. If this service error is in the response to an authenticated request made using an access token, the client MUST attempt to to refresh the access token and retry the request once using the new access token.
+
+An access token can be refreshed with the following request:
+
+*  refresh token request
+
+   -  **Authenticated**: yes, using refresh token
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/auth/session``
+   -  **Request Body**: None
+   -  **Response Shape**:
+
+      +
+        ::
+
+            {
+                “access_token”: (string)
+            }
+   -  **Behavior**:
+
+      + If the refresh request fails, an invalid session service error should be thrown for the original request, and the current user MUST be logged out by clearing persisted authentication information. If the refresh succeeds, the new access token should be persisted and the original request MUST be retried once and only once.
+
+
 Proactive Token Refresher
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In addition to automatically retrying requests when they fail due to an invalid session, clients SHOULD have a mechanism for proactively refreshing expired access tokens in the background. Access tokens are stored as JWT strings (see `RFC 7519 <https://tools.ietf.org/html/rfc7519>`_), thus expiration time can be checked on the client side without making any network requests.
+
+How a client implements this mechanism will depend on the language and environment, and is ultimately at the discretion of the SDK author. For example, the reference implementation Swift SDK for iOS implements proactive token refresh by running a background thread that checks for access token expiration every 60 seconds. If the token is expired, the thread makes the refresh token request described in the parent section.
+
+Other languages and environments will have different mechanisms for periodically running tasks in the background, and in some environments this may be infeasible. In environments where a background task is infeasible, it is RECOMMENDED to check for access token expiration before any request that uses an access token.
+
 
 ~~~~~~~~~~~~
 Request Body
 ~~~~~~~~~~~~
 
+Most ``POST`` requests made to the Stitch server also require a JSON request body to be included. When a request body is included, the client MUST also include the following header:
+
+* ``Content-Type: application/json``
+
+
 ~~~~~~~~~~~~~~
 Response Shape
 ~~~~~~~~~~~~~~
+
+Many of the requests made to the Stitch server will contain a non-empty response. This specification provides the expected shape of the response for each request. The shape provided assumes a successful request. Responses denoting a service error will be structured differently, and this structure is described in the `Error Handling`_ section.
+
 
 ~~~~~~~~
 Behavior 
 ~~~~~~~~
 
+Most methods in the Stitch SDK API will require additional tasks to be performed after the request is complete and the response is received (or if the request failed for any reason). This specification describes any additional behavior that the client must exhibit once a request is completed.
+
 Error Handling
 --------------
+
+Since a Stitch SDK makes network requests, it is inherently prone to errors. Errors may occur for a number of reasons, but in general there are three classes of errors that a Stitch SDK should naturally handle; service errors, request errors, and client errors. Each of these types of errors are described in this section.
+
+A Stitch SDK MUST support a way of representing these errors to the end-user developers using the SDK. Since different languages and environments support error handling in vastly different ways, the way of representing and throwing errors is at the discretion of the SDK author, but the following general guidelines SHOULD be followed:
+
+*  There should be an overarching Stitch error type from which all other error types inherit or are composed of. This allows Stitch errors to be handled in a unified way. This type should be called ``StitchError`` or ``StitchException`` depending on the idioms of the language.
+
+   + Example: In the reference implementation `Java SDK <https://github.com/mongodb/stitch-android-sdk>`_, ``StitchException`` is the parent class for ``StitchServiceException``, ``StitchRequestException``, and ``StitchClientException``.
+   + Example: In the reference implementation `Swift SDK <https://github.com/mongodb/stitch-ios-sdk>`_, ``StitchError`` is an enum with cases for ``.serviceError``, ``.requestError``, and ``.clientError``.
+
+*  If a language or environment supports constraining the type of an error that is thrown or returned, the SDK should constrain errors returned by SDK methods to be of the overarching ``StitchError``/``StitchException`` type.
+   + Example: In the reference implementation `Swift SDK for iOS <https://github.com/mongodb/stitch-ios-sdk>`_, the asynchronous methods that communicate with Stitch accept a callback to handle the result of a request. The callbacks contain a result that may contain a ``StitchError`` if the method failed for any reason.
+
+The next few subsections describe the different classes of errors that a Stitch SDK MUST naturally handle and represent to the end-user developer.
 
 ~~~~~~~~~~~~~~
 Service Errors
 ~~~~~~~~~~~~~~
 
+Service errors are errors that are returned by the Stitch server after a request is completed, with an error message and error code. Service errors generally occur (but are not limited to occuring) when something is misconfigured on the Stitch server or parameters to a function or endpoint are invalid.
+
+The response body of a service error will most likely be in the following format:
+
+::
+
+  {
+      “error”: (string containing error message),
+      “error_code”: (string denoting error code)
+  }
+
+The SDK MUST parse this response to produce an error interface containing an error message and error code. An SDK SHOULD represent the possible error codes as an enumeration. The reference implementations of the SDK will have the latest list of possible error codes, but the enumeration should always include the ``Unknown`` case for unrecognized codes or improperly constructed responses.
+
+If the response is not in this format, the produced error interface should use the entire response body as the error message, and ``Unknown`` as the error code. For example, if the response body is the following:
+
+::
+
+  404 page not found
+
+The produced error interface should have the error message “404 page not found”, and the error code ``Unknown``.
+
+
 ~~~~~~~~~~~~~~
 Request Errors
 ~~~~~~~~~~~~~~
+
+Request errors are errors that occur while encoding, carrying out, or decoding a request. Request errors typically result from another component of the SDK throwing an error/exception. This could be the transport throwing a timeout error, or the response decoder throwing a decoding exception because the response was in an unexpected format.
+
+The following list enumerates the error codes that should be provided and when they should used (naming can be adjusted to be idiomatic for a particular language/environment) :
+
+*  ``TransportError``
+
+   + A ``TransportError`` should be thrown/returned when the underlying transport for an HTTP request throws/returns an error. Reasons an underlying transport may throw an error include but are not limited to network timeouts or an unreachable server.
+
+*  ``EncodingError``
+
+   + An ``EncodingError`` should be thrown/returned when there is a failure in encoding a request body into JSON. In general, if an SDK is implemented correctly, this error should only ever occur if there is a mistake in the application code and a non-encodable value is passed as an argument to a Stitch function.
+
+*  ``DecodingError``
+
+   + A ``DecodingError`` should be thrown/returned when there is a failure in decoding the response into the desired internal model or expected Stitch function return value.
+
+*  ``UnknownError``
+
+   + An ``UnknownError`` should be thrown/returned when an error occurs that is unrelated to any of the other error codes. This type of error should be uncommon.
+
+An SDK MAY include additional error codes if a language or environment has a common type of request error that doesn’t fall under one of the above error codes.
+
+When constructing a representation of a request error, the interface should contain the underlying error/exception object, along with the error code.
+
 
 ~~~~~~~~~~~~~
 Client Errors
 ~~~~~~~~~~~~~
 
+Client errors are errors that occur because the client is misconfigured or used incorrectly. The representation of these errors should contain an error code. The reasons that a client may result in an error will depend on the language and environment, but all SDKs should have the following error codes:
+
+*  ``LoggedOutDuringRequest``
+
+   + Should be thrown/returned if a client is logged out when attempting to refresh an access token.
+
+*  ``MustAuthenticateFirst``
+   + Should be thrown/returned if a client attempts to make an authenticated request without being logged in.
+
+*  ``UserNoLongerValid``
+   + Should be thrown/returned if a client attempts to use a StitchUser object to link to a new identity when that StitchUser has already been logged out.
+
+* ``CouldNotLoadPersistedAuthInfo``
+   + Should be thrown/returned if a client fails to load persisted authentication information when attempting to make an authenticated request.
+
+*  ``CouldNotPersistAuthInfo``
+   + Should be thrown/returned if a client fails to persist authentication information after a successful login, link, or access token refresh request.
+
+An SDK MAY define additional client error codes if appropriate for the language, environment, or internal client implementation.
+
+
 Test Plan
 =========
+
+See `Reference Implementations`_
+
 
 Motivation
 ==========
 
+Polyglot developers, documentation authors, and support engineers working on multi-platform applications built on top of MongoDB Stitch may become frustrated and confused if different platforms have different idioms and semantics for communicating with MongoDB Stitch. Their jobs can be made easier if there is a unified specification for how SDKs should be structured and behave.
+
+
 Backwards Compatibility
 =======================
 
+The specification should be mostly backwards compatible with respect to the v4.0.0 Java, Swift, and TypeScript SDKs. Slight modifications (including minor breaking changes) may be necessary to reach full specification compliance. Backwards compatibility with v3.0.0 SDKs was not a goal of this specification as it would require major breaking changes.
+
+
 Reference Implementations
 =========================
+
+The following SDKs (officially supported by MongoDB) are provided as reference implementations of this specification:
+
+:Java Android SDK: https://github.com/mongodb/stitch-android-sdk/tree/master/android
+:Java Server SDK: https://github.com/mongodb/stitch-android-sdk/tree/master/server
+:Swift iOS SDK: https://github.com/mongodb/stitch-ios-sdk
+:JavaScript Browser SDK: https://github.com/mongodb/stitch-js-sdk/tree/master/packages/browser/sdk
+:JavaScript Node.js: https://github.com/mongodb/stitch-js-sdk/tree/master/packages/server/sdk
+
+Although this specification doesn’t define requirements for internal implementation structure, we recommend that new SDKs base their structure on one of these reference implementations as their modular structure makes it easy to extend the SDK to support new MongoDB Stitch features.
+
+Each reference implementation is also comprehensively tested, and constitutes the test plan for this specification.
+
 
 Q & A
 =====
 
 This section will be updated with frequently asked questions from end-user developers and SDK authors.
+
 
 Changes
 =======
