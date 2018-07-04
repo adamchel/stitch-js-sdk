@@ -326,7 +326,7 @@ An SDK MUST have a ``StitchAuth`` interface, which serves as the primary means o
        * Gets a client for a particular authentication provider.
        * See the "Factories" section for details on the factory type.
        */
-      getProviderClient<T>(factory AuthProviderClientFactory<T>): T
+      getProviderClient<T>(factory: AuthProviderClientFactory<T>): T
 
       /**
        * (REQUIRED - see "Factories" for exceptions)
@@ -335,7 +335,7 @@ An SDK MUST have a ``StitchAuth`` interface, which serves as the primary means o
        * provider name. See the "Factories" section for details on the 
        * factory type.
        */
-      getProviderClient<T>(factory AuthProviderClientFactory<T>, 
+      getProviderClient<T>(factory: AuthProviderClientFactory<T>, 
                            providerName: string): T
 
       /**
@@ -412,7 +412,30 @@ For the methods that make network requests, the following list enumerates how ea
                 }
             }
 
-      + The device information document contains the following key-value pairs: TABLE TODO
+      + The device information document contains the following key-value pairs:
+        +-----------------+------------------------------+--------------------------+
+        | Key             | Value                        |                          |
+        +-----------------+------------------------------+--------------------------+
+        | deviceId        | The device_id if one is      | REQUIRED unless omitted  |
+        |                 | persisted, omitted otherwise | because no device ID is  |
+        |                 |                              | persisted                |
+        +-----------------+------------------------------+--------------------------+
+        | appId           | The name of the              | RECOMMENDED              |
+        |                 | local application            |                          |
+        +-----------------+------------------------------+--------------------------+
+        | appVersion      | The version of the           | RECOMMENDED              |
+        |                 | local application            |                          |
+        +-----------------+------------------------------+--------------------------+
+        | platform        | The platform of the          | REQUIRED                 |
+        |                 | SDK (e.g. “Android”,         |                          |
+        |                 | “iOS”, etc.)                 |                          |
+        +-----------------+------------------------------+--------------------------+
+        | platformVersion | The version of the           | REQUIRED                 |
+        |                 | SDK’s platform.              |                          |
+        +-----------------+------------------------------+--------------------------+
+        | sdkVersion      | The version of the           | REQUIRED                 |
+        |                 | SDK.                         |                          |
+        +-----------------+------------------------------+--------------------------+
 
    -  **Response Shape**:
 
@@ -611,8 +634,8 @@ Test Plan
 Motivation
 ==========
 
-BackwardsCompatibility
-======================
+Backwards Compatibility
+=======================
 
 Reference Implementations
 =========================
