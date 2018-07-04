@@ -1156,18 +1156,15 @@ An SDK MUST have a ``UserPasswordCredential`` interface which supports logging i
 
 The following table enumerates the properties that a ``UserPasswordCredential`` should have when inheriting the ``StitchCredential`` interface:
 
-+----------------------+-----------------------------------------------+
-| providerName         | “local-userpass”                              |
-+----------------------+-----------------------------------------------+
-| providerType         | “local-userpass”                              |
-+----------------------+-----------------------------------------------+
-| material             | {                                             |
-|                      |   “username”: usernameFromConstructor,        |
-|                      |   “password”: passwordFromConstructor         |
-|                      | }                                             |
-+----------------------+-----------------------------------------------+
-| providerCapabilities | { reusesExistingSession: false }              |
-+----------------------+-----------------------------------------------+
++----------------------+-------------------------------------------------------------------------------+
+| providerName         | “local-userpass”                                                              |
++----------------------+-------------------------------------------------------------------------------+
+| providerType         | “local-userpass”                                                              |
++----------------------+-------------------------------------------------------------------------------+
+| material             | {  “username”: usernameFromConstructor, “password”: passwordFromConstructor } |
++----------------------+-------------------------------------------------------------------------------+
+| providerCapabilities | { reusesExistingSession: false }                                              |
++----------------------+-------------------------------------------------------------------------------+
 
 
 Authentication Provider Clients
