@@ -413,7 +413,7 @@ For the methods that make network requests, the following list enumerates how ea
             }
 
       + The device information document contains the following key-value pairs:
-        
+
         +-----------------+------------------------------+--------------------------+
         | Key             | Value                        |                          |
         +-----------------+------------------------------+--------------------------+
@@ -497,24 +497,178 @@ For the methods that make network requests, the following list enumerates how ea
 
 StitchAuthListener
 ------------------
+An SDK MAY have a ``StitchAuthListener`` interface, which is an interface that end-user developers can inherit to perform actions that will occur whenever an authentication event occurs in an application. ``StitchAuthListener`` objects can be registered with a ``StitchAuth`` if the ``StitchAuth`` interface implements the ``addAuthListener`` method. The following methods MUST be provided if ``StitchAuthListener`` is implemented:
+
+.. code:: typescript
+
+  interface StitchAuthListener {
+    /**
+     * (REQUIRED) 
+     *
+     * To be called any time a notable event regarding authentication happens.
+     * These events include:
+     * - When a user logs in.
+     * - When a user logs out.
+     * - When a user is linked to another identity.
+     * - When a listener is registered.
+     *
+     * The auth parameter is the instance of StitchAuth where the event
+     * happened. It should be used to infer the current state of
+     * authentication.
+     */
+    onAuthEvent(auth: StitchAuth): void
+  }
 
 StitchPush
 ----------
+
+An SDK MAY have a ``StitchPush`` interface, which is used for producing push provider clients. Push provider clients may be used by a Stitch user to subscribe for push notifications from an external messaging system. The following methods MUST be provided if ``StitchPush`` is implemented:
+
+.. code:: typescript
+
+  interface StitchPush {
+
+      /**
+       * (REQUIRED - see “Factories” for exceptions)
+       *
+       * Gets a push provider client for a particular named push provider 
+       * in Stitch. See the “Factories” section for details on the factory type.
+       */
+      getClient<T>(factory: NamedPushClientFactory<T>, serviceName: string): T
+  }
+
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Sample Push Client Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The purpose of a push provider client is to register a Stitch user for push notifications that may be sent by another Stitch user or from the Stitch admin console. The push client does not necessarily set up the device to receive the notifications, because that functionality will generally require the use of a third-party SDK from a third-party messaging service.
+
+More commonly, the third-party messaging service will provide a “registration token” or some other unique identifying token for the device, and that token needs to be registered with the currently logged in Stitch user’s device so that push notifications sent to a particular user are also sent to the device with that registration token.
+
+A sample push client implementation is as follows:
+
+.. code:: typescript
+
+  interface SampleServicePushClient {
+      /**
+       * (ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Registers the given registration token with the currently 
+       * logged in user’s device on Stitch.
+       */
+      register(registrationToken: string): void
+
+      /**
+       * (ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Deregisters the registration token bound to the currently 
+       * logged in user's device on Stitch.
+       */
+      deregister(): void
+  }
+
+
 Client Configuration
 --------------------
+
+As discussed in the specification for the ``Stitch interface``, Stitch clients should be configurable beyond just the client app ID.  The interfaces here define the configuration settings that are required to be available for an SDK. If appropriate and idiomatic for the target language, a builder should also be specified for each of these interfaces.
+
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 StitchClientConfiguration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+An SDK MUST have a ``StitchClientConfiguration`` interface, which defines the low-level settings of how a client should communicate with Stitch and store data. The following properties MUST be provided:
+
+.. code:: typescript
+
+  interface StitchClientConfiguration {
+      /**
+       * (REQUIRED)
+       *
+       * The base URL of the Stitch server that the client will communicate
+       * with. By default, this should be “https://stitch.mongodb.com”.
+       */
+      baseUrl: string
+
+      /**
+       * (REQUIRED)
+       * 
+       * A simple key-value store abstraction that will be used to persist
+       * authentication information, and potentially other data in the future.
+       * By default, this should be an abstraction of a platform-appropriate 
+       * persistence layer (e.g. UserDefaults on iOS, LocalStorage in the 
+       * browser, SharedPreferences on Android).
+       */
+      storage: Storage
+
+      /**
+       * (OPTIONAL)
+       *
+       * A local directory in which Stitch can store any data (e.g. embedded 
+       * MongoDB data directory, authentication information). If the platform
+       * does not have the concept of a local directory (e.g. browser), this may
+       * be omitted.
+       */
+      dataDirectory: string
+
+      /**
+       * (REQUIRED)
+       *
+       * A simple HTTP round-trip abstraction that will be used to make HTTP 
+       * requests on behalf of the client.  By default, this should be an 
+       * abstraction of a platform-appropriate HTTP transport utility (e.g. 
+       * URLSession on iOS, fetch in JavaScript, OkHttp in Android).
+       */
+      transport: Transport
+
+      /**
+       * (REQUIRED)
+       * 
+       * The default amount of time that a request should wait before it is 
+       * considered timed out. This should passed as part of the request object
+       * to the Transport. TimeIntervalType refers to the 
+       * platform-idiomatic representation of a time interval (e.g.
+       * TimeInterval on iOS, Long in Java). By default, this interval should
+       * be 15 seconds.
+       */
+      defaultRequestTimeout: TimeIntervalType
+  }
+
+Additional properties MAY be included if necessary and appropriate for the target environment/language. For example, a Java SDK could offer a codec registry type to be used for decoding responses from the Stitch server.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 StitchAppClientConfiguration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An SDK MUST have a ``StitchAppClientConfiguration`` interface, which defines the local app information that the client should provide when it reports device information to the Stitch server. The ``StitchAppClientConfiguration`` must also inherit ``StitchClientConfiguration``. The ``Stitch`` interface should be responsible for providing defaults when no configuration is specified. The following properties MUST be provided:
+
+.. code:: typescript
+
+  interface StitchAppClientConfiguration: StitchClientConfiguration {
+
+      /**
+       * (REQUIRED)
+       *
+       * The name of the local application, as it should be reported
+       * to the Stitch server. By default, the Stitch interface should
+       * attempt to infer this information from platform-specific context.
+       */
+      localAppName: string
+
+      /**
+       * (REQUIRED)
+       *
+       * The version of the local application, as it should be reported
+       * to the Stitch server. By default, the Stitch interface should
+       * attempt to infer this information from platform-specific context.
+       */
+      localAppVersion: string
+  }
+
+Additional properties MAY be included if necessary and appropriate for the target environment/language.
+
 
 User Information
 ----------------
@@ -523,56 +677,498 @@ User Information
 StitchUser
 ~~~~~~~~~~
 
+An SDK must have a ``StitchUser`` interface, which exposes properties about a Stitch user, and offers functionality for linking that user to a new identity. The following methods and properties MUST be provided:
+
+.. code:: typescript
+
+  interface StitchUser {
+      /**
+       * (REQUIRED, ASYNC ALLOWED, ERROR POSSIBLE)
+       *
+       * Links this user with a new identity, using the provided credential.
+       * If the linking is successful, the method also attempts to update the
+       * user profile by fetching the latest user profile from the Stitch
+       * server.
+       */
+      linkWithCredential(credential: StitchCredential): StitchUser
+
+      /**
+       * (REQUIRED)
+       *
+       * The id of this Stitch user.
+       */
+      id: string
+
+      /**
+       * (REQUIRED)
+       *
+       * The string representing the type of authentication provider 
+       * used to log in as this user.
+       */
+      loggedInProviderType: string
+
+      /**
+       * (REQUIRED)
+       *
+       * The name of the authentication provider used to log in as this user.
+       */
+      loggedInProviderName: string
+
+      /**
+       * (REQUIRED)
+       *
+       * The type of this user (“normal” for normal users, or “server” for users
+       * authenticated using the server API key authentication provider.
+       */
+      userType: string (or UserType enum)
+
+      /**
+       * (REQUIRED)
+       *
+       * A profile containing basic information about the user.
+       */
+      profile: StitchUserProfile
+
+      /**
+       * (REQUIRED)
+       *
+       * A list of the identities associated with this user.
+       */
+      identities: List<StitchUserIdentity>
+  }
+
+For the methods that make network requests, the following list enumerates how each of the requests should be constructed, as well as the shapes of the responses from the Stitch server:
+
+*  ``linkWithCredential`` - initial request
+
+   -  **Authenticated**: yes, with access token
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/auth/providers/<provider_name>/login?link=true``
+   -  **Request Body**: 
+
+      + The material of the credential as an extended JSON document, (see `Authentication Credentials`_), merged with the following document: 
+        ::
+            
+            {
+                "options": {
+                    "device": {
+                        (device information document)
+                    }
+                }
+            }
+
+      + The contents of the device information document are covered in `StitchAuth`_.
+
+   -  **Response Shape**:
+
+      +
+        ::
+
+            {
+                “access_token”: (string),
+                “user_id”: (string)
+            }
+
+   -  **Behavior**:
+
+      + The ``access_token`` in the response should be persisted as it is the most up-to-date access token.
+
+*  ``linkWithCredential`` - profile request
+
+   -  Identical to ``loginWithCredential``‘s profile request (covered in `StitchAuth`_, except that if the profile request fails, the currently logged in user (the same as the linked user) should remain logged in even though an error is thrown or returned.
+
+
 ~~~~~~~~~~~~~~~~~
 StitchUserProfile
 ~~~~~~~~~~~~~~~~~
+
+An SDK must have a ``StitchUserProfile`` interface, which exposes basic profile information about a Stitch user. The following properties MUST be provided:
+
+.. code:: typescript
+
+  interface StitchUserProfile {
+
+      /**
+       * (REQUIRED)
+       *
+       * The full name of this user.
+       */
+      name: Optional<string>
+
+      /**
+       * (REQUIRED)
+       *
+       * The email address of this user.
+       */
+      email: Optional<string>
+
+      /**
+       * (REQUIRED)
+       *
+       * A URL to a profile picture of this user.
+       */
+      pictureUrl: Optional<string>
+
+      /**
+       * (REQUIRED)
+       *
+       * The first name of this user.
+       */
+      firstName: Optional<string>
+
+      /**
+       * (REQUIRED)
+       *
+       * The last name of this user.
+       */
+      lastName: Optional<string>
+
+      /**
+       * (REQUIRED)
+       *
+       * The gender of this user.
+       */
+      gender: Optional<string>
+
+      /**
+       * (REQUIRED)
+       *
+       * The birthdate of this user.
+       */
+      birthday: Optional<string>
+
+      /**
+       * (REQUIRED)
+       *
+       * The minimum age of this user (some social authentication providers,
+       * such as Facebook and Google provide the age of a user as a range rather
+       * than an exact number).
+       */
+      minAge: Optional<number>
+
+      /**
+       * (REQUIRED)
+       *
+       * The maximum age of this user (some social authentication providers,
+       * such as Facebook and Google provide the age of a user as a range rather
+       * than an exact number).
+       */
+      maxAge: Optional<number>
+  }
+
 
 ~~~~~~~~~~~~~~~~~~
 StitchUserIdentity
 ~~~~~~~~~~~~~~~~~~
 
+An SDK must have a ``StitchUserIdentity`` interface, which exposes information about a Stitch user identity. The following properties MUST be provided:
+
+.. code:: typescript
+
+  interface StitchUserIdentity {
+      /**
+       * (REQUIRED)
+       *
+       * The id of this identity. This is NOT the id of the user. This is 
+       * generally an opaque value that should not be used.
+       */
+      id: string
+
+      /**
+       * (REQUIRED)
+       *
+       * The type of authentication provider that this identity is for. A user
+       * may be linked to multiple identities of the same type. This value is 
+       * useful to check to determine if a user has registered with a certain
+       * provider yet.
+       */
+      providerType: string
+  }
+
+
 Factories
 ---------
 
+When appropriate and possible for an SDK’s language and environment, the SDK MUST support the construction of authentication provider clients and service clients with a factory approach so that ``StitchAppClient`` and ``StitchAuth`` can be as modular as possible. 
+
+The exact mechanics of the factory will depend on the language and environment, but in general, the factory should be a generic type with the constructed client type as the generic type parameter.
+
+When factories are supported by an SDK, all of the following factories MUST be offered:
+
+* ``AuthProviderClientFactory`` - for unnamed authentication providers
+* ``NamedAuthProviderClientFactory`` - for named authentication providers
+* ``ServiceClientFactory`` - for unnamed services
+* ``NamedServiceClientFactory`` - for named services
+
+If push provider clients are supported by an SDK and factories are also supported, the following factory MUST be offered to support ``StitchPush``:
+
+* ``NamedPushClientFactory`` - for push providers
+
+For an example implementation of the factory approach, see the reference implementation of the SDK `in Java <https://github.com/mongodb/stitch-android-sdk>`_.
+
+If a language or environment does not support this factory approach, the SDK MUST use an alternate approach to maintain modularity. An acceptable alternative approach is to include a ``StitchAppClient``, ``StitchAuth``, or ``StitchPush`` as a parameter to the constructor/initializer of the service client type or authentication provider client type. The following examples demonstrates this alternative approach in pseudocode:
+
+.. code:: typescript
+
+  class SomeServiceClient { 
+      constructor(appClient: StitchAppClient, serviceName: string)
+  }
+
+  class SomeAuthProviderClient { 
+      constructor(auth: StitchAuth)
+  }
+
+  class SomePushProviderClient { 
+      constructor(push: StitchPush)
+  }
+
+
 Authentication Credentials
 --------------------------
+
+An SDK MUST have a ``StitchCredential`` interface that is accepted as a parameter by StitchAuth and StitchUser for authentication methods such as ``loginWithCredential`` and ``linkWithCredential``. The ``StitchCredential`` type should not be meant to be instantiated directly, but via a subclass implementation specific to an authentication provider. This section will cover the required interface for each of these types.
 
 
 ~~~~~~~~~~~~~~~~
 StitchCredential
 ~~~~~~~~~~~~~~~~
 
+This is the base credential type that is accepted by login and link methods, and MUST provide the following properties:
+
+.. code:: typescript
+
+  interface StitchCredential {
+      /**
+       * (REQUIRED)
+       *
+       * The name of the authentication provider being authenticated with.
+       */
+      providerName: string
+
+      /**
+       * (REQUIRED)
+       *
+       * The string denoting the type of the authentication provider being 
+       * authenticated with.
+       */
+      providerType: string
+
+      /**
+       * (REQUIRED)
+       *
+       * A BSON document containing the credential contents of the credential. 
+       * The subsections describing the specific credential types for each
+       * authentication provider list the required fields for each 
+       * authentication provider type.
+       */
+      material: BsonDocument
+
+      /**
+       * (REQUIRED)
+       *
+       * An interface describing the behavior that the credential should
+       * exhibit when authenticating.
+       */
+      providerCapabilities: ProviderCapabilities
+  }
+
 
 ProviderCapabilities
 ^^^^^^^^^^^^^^^^^^^^
+
+The ``ProviderCapabilities`` type describes the behavior that a credential should exhibit when authenticating. The following properties MUST be provided:
+
+.. code:: typescript
+
+  interface ProviderCapabilities {
+
+      /**
+       * (REQUIRED)
+       *
+       * When true, a StitchAuth using this credential to login should skip 
+       * authentication and reuse existing authentication information when 
+       * attempting to login with the same authentication provider as the 
+       * already authenticated user.
+       */
+      reusesExistingSession: boolean    
+  }
+
 
 ~~~~~~~~~~~~~~~~~~~
 AnonymousCredential
 ~~~~~~~~~~~~~~~~~~~
 
+An SDK MUST have an ``AnonymousCredential`` interface which supports logging in as an anonymous user. The following constructor MUST be provided:
+
+.. code:: typescript
+
+  interface AnonymousCredential: StitchCredential {
+      constructor()
+  }
+
+The following table enumerates the properties that an ``AnonymousCredential`` should have when inheriting the ``StitchCredential`` interface:
+
++----------------------+-----------------------------------------------+
+| providerName         | “anon-user”                                   |
++----------------------+-----------------------------------------------+
+| providerType         | “anon-user”                                   |
++----------------------+-----------------------------------------------+
+| material             | { }                                           |
++----------------------+-----------------------------------------------+
+| providerCapabilities | { reusesExistingSession: true }               |
++----------------------+-----------------------------------------------+
+
+
 ~~~~~~~~~~~~~~~~
 CustomCredential
 ~~~~~~~~~~~~~~~~
+
+An SDK MUST have a ``CustomCredential`` interface which supports logging in with or linking to an identity from a custom authentication system. The following constructor MUST be provided:
+
+.. code:: typescript
+
+  interface CustomCredential: StitchCredential {
+      constructor(token: string)
+  }
+
+The following table enumerates the properties that a ``CustomCredential`` should have when inheriting the ``StitchCredential`` interface:
+
++----------------------+-----------------------------------------------+
+| providerName         | “custom-token”                                |
++----------------------+-----------------------------------------------+
+| providerType         | “custom-token”                                |
++----------------------+-----------------------------------------------+
+| material             | { “token”: tokenFromConstructor }             |
++----------------------+-----------------------------------------------+
+| providerCapabilities | { reusesExistingSession: false }              |
++----------------------+-----------------------------------------------+
 
 ~~~~~~~~~~~~~~~~~~
 FacebookCredential
 ~~~~~~~~~~~~~~~~~~
 
+An SDK MUST have a ``FacebookCredential`` interface which supports logging in with or linking to an identity via the Facebook Login API. The following constructor MUST be provided:
+
+.. code:: typescript
+
+  interface FacebookCredential: StitchCredential {
+      constructor(accessToken: string)
+  }
+
+The following table enumerates the properties that a ``FacebookCredential`` should have when inheriting the ``StitchCredential`` interface:
+
++----------------------+-----------------------------------------------+
+| providerName         | “oauth2-facebook”                             |
++----------------------+-----------------------------------------------+
+| providerType         | “oauth2-facebook”                             |
++----------------------+-----------------------------------------------+
+| material             | { “accessToken”: accessTokenFromConstructor } |
++----------------------+-----------------------------------------------+
+| providerCapabilities | { reusesExistingSession: false }              |
++----------------------+-----------------------------------------------+
+
+
 ~~~~~~~~~~~~~~~~
 GoogleCredential
 ~~~~~~~~~~~~~~~~
+
+An SDK MUST have a ``GoogleCredential`` interface which supports logging in with or linking to an identity via the Google Sign-In API. The following constructor MUST be provided:
+
+.. code:: typescript
+
+  interface GoogleCredential: StitchCredential {
+      constructor(authCode: string)
+  }
+
+The following table enumerates the properties that a ``GoogleCredential`` should have when inheriting the ``StitchCredential`` interface:
+
++----------------------+-----------------------------------------------+
+| providerName         | “oauth2-google”                               |
++----------------------+-----------------------------------------------+
+| providerType         | “oauth2-google”                               |
++----------------------+-----------------------------------------------+
+| material             | { “authCode”: authCodeFromConstructor }       |
++----------------------+-----------------------------------------------+
+| providerCapabilities | { reusesExistingSession: false }              |
++----------------------+-----------------------------------------------+
+
 
 ~~~~~~~~~~~~~~~~~~~~~~
 ServerApiKeyCredential
 ~~~~~~~~~~~~~~~~~~~~~~
 
+An SDK MUST have a ``ServerApiKeyCredential`` interface which supports logging in with a server API key created in the Stitch admin console. The following constructor MUST be provided:
+
+.. code:: typescript
+
+  interface ServerApiKeyCredential: StitchCredential {
+      constructor(key: string)
+  }
+
+The following table enumerates the properties that a ``ServerApiKeyCredential`` should have when inheriting the ``StitchCredential`` interface:
+
++----------------------+-----------------------------------------------+
+| providerName         | “api-key”                                     |
++----------------------+-----------------------------------------------+
+| providerType         | “api-key”                                     |
++----------------------+-----------------------------------------------+
+| material             | { “key”: keyFromConstructor }                 |
++----------------------+-----------------------------------------------+
+| providerCapabilities | { reusesExistingSession: false }              |
++----------------------+-----------------------------------------------+
+
+
 ~~~~~~~~~~~~~~~~~~~~
 UserApiKeyCredential
 ~~~~~~~~~~~~~~~~~~~~
 
+An SDK MUST have a ``UserApiKeyCredential`` interface which supports logging in with a user API key. The following constructor MUST be provided:
+
+.. code:: typescript
+
+  interface UserApiKeyCredential: StitchCredential {
+      constructor(key: string)
+  }
+
+The following table enumerates the properties that a ``UserApiKeyCredential`` should have when inheriting the ``StitchCredential`` interface:
+
++----------------------+-----------------------------------------------+
+| providerName         | “api-key”                                     |
++----------------------+-----------------------------------------------+
+| providerType         | “api-key”                                     |
++----------------------+-----------------------------------------------+
+| material             | { “key”: keyFromConstructor }                 |
++----------------------+-----------------------------------------------+
+| providerCapabilities | { reusesExistingSession: false }              |
++----------------------+-----------------------------------------------+
+
+
 ~~~~~~~~~~~~~~~~~~~~~~
 UserPasswordCredential
 ~~~~~~~~~~~~~~~~~~~~~~
+
+An SDK MUST have a ``UserPasswordCredential`` interface which supports logging in with or linking to an identity using an email address and password. The following constructor MUST be provided:
+
+.. code:: typescript
+
+  interface UserPasswordCredential: StitchCredential {
+      constructor(username: string, password: string)
+  }
+
+The following table enumerates the properties that a ``UserPasswordCredential`` should have when inheriting the ``StitchCredential`` interface:
+
++----------------------+-----------------------------------------------+
+| providerName         | “local-userpass”                              |
++----------------------+-----------------------------------------------+
+| providerType         | “local-userpass”                              |
++----------------------+-----------------------------------------------+
+| material             | {                                             |
+|                      |   “username”: usernameFromConstructor,        |
+|                      |   “password”: passwordFromConstructor         |
+|                      | }                                             |
++----------------------+-----------------------------------------------+
+| providerCapabilities | { reusesExistingSession: false }              |
++----------------------+-----------------------------------------------+
+
 
 Authentication Provider Clients
 -------------------------------
