@@ -293,18 +293,18 @@ An SDK MUST have a StitchAppClient interface, which serves as the primary means 
 For the methods that make network requests, the following list enumerates how each of the requests should be constructed, as well as the shapes of the responses from the Stitch server:
 
 * ``callFunction``
-  - Authenticated: yes, with access tokens
-  - Endpoint: ``POST /api/client/v2.0/app/<client_app_id>/functions/call``
-  - Request Body:
-    ::
+   - Authenticated: yes, with access tokens
+   - Endpoint: ``POST /api/client/v2.0/app/<client_app_id>/functions/call``
+   - Request Body:
+     ::
         {
            "name": (name argument),
            "arguments": (args argument)
         }
-    + The arguments field in the request body MUST be encoded as canonical extended JSON. See the specification on `MongoDB extended JSON <https://github.com/mongodb/specifications/blob/master/source/extended-json.rst>`_ for more information.
+      + The arguments field in the request body MUST be encoded as canonical extended JSON. See the specification on `MongoDB extended JSON <https://github.com/mongodb/specifications/blob/master/source/extended-json.rst>`_ for more information.
 
-  - Response Shape:
-    + The extended JSON representation of the called Stitch function's return value.
+   - Response Shape:
+      + The extended JSON representation of the called Stitch function's return value.
 
 StitchAuth
 ----------
