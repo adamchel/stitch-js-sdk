@@ -5,7 +5,7 @@
 Stitch SDK API
 ==============
 
-:Spec: ?
+:Spec: 1
 :Spec Version: 4.0.0
 :Title: Stitch SDK API
 :Authors: Adam Chelminski
@@ -22,7 +22,7 @@ Stitch SDK API
 Abstract
 ========
 
-MongoDB Stitch supports client interactions over an HTTP client API. This specification defines the how a Stitch client SDK should use this API backend via this API. As not all languages/environments have the same abilities, parts of the spec may or may not apply. These sections have been called out.
+MongoDB Stitch supports client interactions over an HTTP client API. This specification defines the how a Stitch client SDK should use and expose this API backend. As not all languages/environments have the same abilities, parts of the spec may or may not apply. These sections have been called out.
 
 Specification
 =============
@@ -45,7 +45,7 @@ Stitch
   The MongoDB Stitch backend-as-a-service backend server.
 
 Client SDK
-  A software library for a particular language or platform that provides access to MongoDB Stitch services made available by the Stitch HTTP client API.
+  A software library for a particular language or platform that provides access to MongoDB Stitch functionality made available by the Stitch HTTP client API.
 
 Client App ID
   The unique identification string required by clients to access their application and its services.
@@ -118,13 +118,12 @@ Deviations are permitted as outlined below.
 Deviations
 ~~~~~~~~~~
 
-When deviating from a defined name, an author should consider if the altered name is recognizable and discoverable to the user of another SDK.
+When deviating from a defined name, an SDKauthor should consider if the altered name is recognizable and discoverable to the user of another SDK.
 
 A non-exhaustive list of acceptable naming deviations are as follows:
 
-- Using the property "isLoggedIn" as an example, Kotlin would use "loggedIn", while Java would use "isLoggedIn()". However, calling it "isAuthenticated" would not be acceptable.
+- Using the property "loggedIn" as an example, Kotlin would use "loggedIn", while Java would use "isLoggedIn()". However, calling it "isAuthenticated" would not be acceptable. Some languages idioms prefer the use of "is", "has", or "was" and this is acceptable.
 - Using the method "loginWithCredential" as an example, Java would use "loginWithCredential", Swift would use "login(withCredential: ...", and Python would use "login_with_credential. However, calling it "loginWithSecret" would not be acceptable.
-- Using "loggedIn" rather than "isLoggedIn". Some languages idioms prefer the use of "is", "has", or "was" and this is acceptable.
 
 --------------
 Client SDK API
@@ -132,15 +131,17 @@ Client SDK API
 
 This section describes how a client SDK should communicate with Stitch and expose its functionality. The section will provide room and flexibility for the idioms and differences in languages and frameworks.
 
-Each of the top-level headers in this section should be made available as a language-appropriate structure that can hold state and expose methods and properties. (e.g. class or interface with class implementation in Java, class or protocol with class/struct implementation in Swift).
+Many of the top-level headers in this section should be made available as a language-appropriate structure that can hold state and expose methods and properties. (e.g. class or interface with class implementation in Java, class or protocol with class/struct implementation in Swift).
 
 For the purposes of this section, we will use the terms "interface" and "object", but appropriate language constructs can be substituted for each SDK.
 
-If a method is marked as ASYNC ALLOWED, the method SHOULD be implemented to return its result in an asynchronous manner if it is appropriate for the environment. The mechanism for this will depend on the platform and environment (e.g. via Promises in ES6, Tasks for Android, closure callbacks in iOS). However, some environments may not require or desire methods with asynchronous behavior (e.g. Java Server SDK). 
+If a method in one of these interfaces is marked as ASYNC ALLOWED, the method SHOULD be implemented to return its result in an asynchronous manner if it is appropriate for the environment. The mechanism for this will depend on the platform and environment (e.g. via Promises in ES6, Tasks for Android, closure callbacks in iOS). However, some environments may not require or desire methods with asynchronous behavior (e.g. Java Server SDK). 
 
 If a method is marked as ERROR POSSIBLE, the method MUST be written to cleanly result in an error when there is a server error, request error, or other invalid state. The mechanism for error handling will depend on the the language and environment, as well as whether the method is implemented synchronously or asynchronously. See the section on `Error Handling`_ for more information.
 
 When methods contain parameters that are wrapped in an optional type, the method can be overloaded to have variants that don’t accept the parameter at all.
+
+Many of the methods in this section require a request to be made to the Stitch server. See `Mechanism for Making Requests`_ for specific details on how to construct these requests.
 
 Stitch
 ------
@@ -174,6 +175,10 @@ An SDK MUST have a ``Stitch`` interface which serves as the entry-point for init
        * called more than once, it should result in a language-appropriate 
        * error, as only one default app client should ever be specified.
        *
+       * If no configuration is specified, a default configuration should
+       * be used. See the sections on Client Configuration for the properties
+       * of a default configuration. 
+       *
        * If appropriate and possible for the environment, this method MAY be
        * called automatically when the user includes the SDK.
        */
@@ -192,6 +197,10 @@ An SDK MUST have a ``Stitch`` interface which serves as the entry-point for init
        * once for a specific client app ID, it should result in a
        * language-appropriate error, as only one app client should be specified
        * for each client app ID.
+       *
+       * If no configuration is specified, a default configuration should
+       * be used. See the sections on Client Configuration for the properties
+       * of a default configuration.
        *
        * If appropriate and possible for the environment, this method MAY be
        * called automatically when the user includes the SDK.
@@ -375,13 +384,13 @@ An SDK MUST have a ``StitchAuth`` interface, which serves as the primary means o
       /**
        * (OPTIONAL) 
        *
-       * Specifies a listener whose onAuthEvent method should be invoked
+       * Registers a listener whose onAuthEvent method should be invoked
        * whenever an authentication event occurs on this client. An 
        * authentication event is defined as one of the following:
        *     - a user is logged in
        *     - a user is logged out
        *     - a user is linked to another identity
-       *     - the listener is registered
+       *     - a listener is registered
        */
       addAuthListener(listener: StitchAuthListener): void
 
@@ -451,7 +460,7 @@ For the methods that make network requests, the following list enumerates how ea
             }
    -  **Behavior**:
 
-      + The ``StitchAuth`` is responsible for persisting the authentication information returned in the response (``access_token`` and ``refresh_token``) so that it can be used to make authenticated requests of the newly logged in user. The ``user_id`` and ``device_id`` should also be persisted so they can returned be as part of the ``StitchAuth``’s user property.
+      + The ``StitchAuth`` is responsible for persisting the authentication information returned in the response (``access_token`` and ``refresh_token``) so that it can be used to make authenticated requests on behalf of the newly logged in user. The ``user_id`` and ``device_id`` should also be persisted so they can returned be as part of the ``StitchAuth``’s user property.
 
       + If a user is already logged in when the call to ``loginWithCredential`` is made, the existing user MUST be logged out, unless the ``providerCapabilities`` property of the credential specifies that ``reusesExistingSession`` is true, and the the provider type of the credential is the same as the provider type of the currently logged in user.
 
@@ -480,7 +489,7 @@ For the methods that make network requests, the following list enumerates how ea
 
    -  **Behavior**:
 
-      + If the profile request fails, the currently authenticated user should be logged out. If the request succeeds, the contents of the response should be persisted such that ``StitchAuth`` will return a fully populated ``StitchUser`` for its user property.
+      + If the profile request fails, the currently authenticated user should be logged out, and the error should be thrown/returned. If the request succeeds, the contents of the response should be persisted such that ``StitchAuth`` will return a fully populated ``StitchUser`` for its user property.
 
 *  ``logout``
 
@@ -572,7 +581,7 @@ A sample push client implementation is as follows:
 Client Configuration
 --------------------
 
-As discussed in the specification for the ``Stitch interface``, Stitch clients should be configurable beyond just the client app ID.  The interfaces here define the configuration settings that are required to be available for an SDK. If appropriate and idiomatic for the target language, a builder should also be specified for each of these interfaces.
+As discussed in the specification for the ``Stitch`` interface, Stitch clients should be configurable beyond just the client app ID.  The interfaces here define the configuration settings that are required to be available for an SDK. If appropriate and idiomatic for the target language, a builder should also be specified for each of these interfaces.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -604,7 +613,7 @@ An SDK MUST have a ``StitchClientConfiguration`` interface, which defines the lo
       storage: Storage
 
       /**
-       * (OPTIONAL)
+       * (RECOMMENDED)
        *
        * A local directory in which Stitch can store any data (e.g. embedded 
        * MongoDB data directory, authentication information). If the platform
@@ -636,13 +645,13 @@ An SDK MUST have a ``StitchClientConfiguration`` interface, which defines the lo
       defaultRequestTimeout: TimeIntervalType
   }
 
-Additional properties MAY be included if necessary and appropriate for the target environment/language. For example, a Java SDK could offer a codec registry type to be used for decoding responses from the Stitch server.
+Additional properties MAY be included if necessary and appropriate for the target environment/language. For example, a Java-based SDK could offer a codec registry type to be used for decoding responses from the Stitch server.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 StitchAppClientConfiguration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-An SDK MUST have a ``StitchAppClientConfiguration`` interface, which defines the local app information that the client should provide when it reports device information to the Stitch server. The ``StitchAppClientConfiguration`` must also inherit ``StitchClientConfiguration``. The ``Stitch`` interface should be responsible for providing defaults when no configuration is specified. The following properties MUST be provided:
+An SDK MUST have a ``StitchAppClientConfiguration`` interface, which defines the local app information that the client should provide when it reports device information to the Stitch server. The ``StitchAppClientConfiguration`` must also inherit ``StitchClientConfiguration``. The ``Stitch`` interface should be responsible for providing defaults for these properties and inherited properties when no configuration is specified. The following properties MUST be provided:
 
 .. code:: typescript
 
@@ -718,7 +727,7 @@ An SDK must have a ``StitchUser`` interface, which exposes properties about a St
        * (REQUIRED)
        *
        * The type of this user ("normal" for normal users, or "server" for users
-       * authenticated using the server API key authentication provider.
+       * authenticated using the server API key authentication provider).
        */
       userType: string (or UserType enum)
 
@@ -774,14 +783,14 @@ For the methods that make network requests, the following list enumerates how ea
 
 *  ``linkWithCredential`` - profile request
 
-   -  Identical to ``loginWithCredential``‘s profile request (covered in `StitchAuth`_, except that if the profile request fails, the currently logged in user (the same as the linked user) should remain logged in even though an error is thrown or returned.
+   -  Identical to ``loginWithCredential``‘s profile request (covered in `StitchAuth`_), except that if the profile request fails, the currently logged in user should remain logged in even though an error is thrown or returned.
 
 
 ~~~~~~~~~~~~~~~~~
 StitchUserProfile
 ~~~~~~~~~~~~~~~~~
 
-An SDK must have a ``StitchUserProfile`` interface, which exposes basic profile information about a Stitch user. The following properties MUST be provided:
+An SDK must have a ``StitchUserProfile`` interface, which exposes basic profile information about a Stitch user. The following properties MUST be provided. The fields in this interface should be populated using the ``data`` field of the profile response from the Stitch server.
 
 .. code:: typescript
 
@@ -1340,7 +1349,7 @@ An SDK MUST have a ``UserApiKey`` interface which represents a user API key (a k
        * (REQUIRED)
        *
        * The actual API key. This should only be a non-empty optional when the 
-       * API key is created. Fetched API keys should always have an empty 
+       * API key is first created. Fetched API keys should always have an empty
        * optional for their key property.
        */
       key: Optional<string>
@@ -1377,8 +1386,8 @@ The following methods MUST be provided:
        *
        * Registers a new identity with the username/password authentication
        * provider. This creates an identity, but no Stitch user will be created
-       * unless the identity is used to log in before it is used to link to an
-       * existing user.
+       * unless the identity is used to log in as a new user before it is used 
+       * to link to an existing user.
        */
       registerWithEmail(email: string, password: string): void
 
@@ -1565,7 +1574,7 @@ In addition to automatically retrying requests when they fail due to an invalid 
 
 How a client implements this mechanism will depend on the language and environment, and is ultimately at the discretion of the SDK author. For example, the reference implementation Swift SDK for iOS implements proactive token refresh by running a background thread that checks for access token expiration every 60 seconds. If the token is expired, the thread makes the refresh token request described in the parent section.
 
-Other languages and environments will have different mechanisms for periodically running tasks in the background, and in some environments this may be infeasible. In environments where a background task is infeasible, it is RECOMMENDED to check for access token expiration before any request that uses an access token.
+Other languages and environments will have different mechanisms for periodically running tasks in the background, and in some environments this may be infeasible. In environments where a background task is infeasible, it is RECOMMENDED to proactively check for token expiration and before making any request that uses an access token.
 
 
 ~~~~~~~~~~~~
@@ -1593,7 +1602,7 @@ Most methods in the Stitch SDK API will require additional tasks to be performed
 Error Handling
 --------------
 
-Since a Stitch SDK makes network requests, it is inherently prone to errors. Errors may occur for a number of reasons, but in general there are three classes of errors that a Stitch SDK should naturally handle; service errors, request errors, and client errors. Each of these types of errors are described in this section.
+Since a Stitch SDK makes network requests, it is inherently prone to errors. Errors may occur for a number of reasons, but in general there are three classes of errors that a Stitch SDK should naturally handle: service errors, request errors, and client errors. Each of these types of errors are described in this section.
 
 A Stitch SDK MUST support a way of representing these errors to the end-user developers using the SDK. Since different languages and environments support error handling in vastly different ways, the way of representing and throwing errors is at the discretion of the SDK author, but the following general guidelines SHOULD be followed:
 
@@ -1603,6 +1612,7 @@ A Stitch SDK MUST support a way of representing these errors to the end-user dev
    + Example: In the reference implementation `Swift SDK <https://github.com/mongodb/stitch-ios-sdk>`_, ``StitchError`` is an enum with cases for ``.serviceError``, ``.requestError``, and ``.clientError``.
 
 *  If a language or environment supports constraining the type of an error that is thrown or returned, the SDK should constrain errors returned by SDK methods to be of the overarching ``StitchError``/``StitchException`` type.
+
    + Example: In the reference implementation `Swift SDK for iOS <https://github.com/mongodb/stitch-ios-sdk>`_, the asynchronous methods that communicate with Stitch accept a callback to handle the result of a request. The callbacks contain a result that may contain a ``StitchError`` if the method failed for any reason.
 
 The next few subsections describe the different classes of errors that a Stitch SDK MUST naturally handle and represent to the end-user developer.
@@ -1647,7 +1657,7 @@ The following list enumerates the error codes that should be provided and when t
 
 *  ``EncodingError``
 
-   + An ``EncodingError`` should be thrown/returned when there is a failure in encoding a request body into JSON. In general, if an SDK is implemented correctly, this error should only ever occur if there is a mistake in the application code and a non-encodable value is passed as an argument to a Stitch function.
+   + An ``EncodingError`` should be thrown/returned when there is a failure in encoding a request body into JSON. In general, if an SDK is implemented correctly, this error should never occur. This type of error should only occur if there is a mistake in the application code and a non-encodable value is passed as an argument to a Stitch function.
 
 *  ``DecodingError``
 
@@ -1666,7 +1676,7 @@ When constructing a representation of a request error, the interface should cont
 Client Errors
 ~~~~~~~~~~~~~
 
-Client errors are errors that occur because the client is misconfigured or used incorrectly. The representation of these errors should contain an error code. The reasons that a client may result in an error will depend on the language and environment, but all SDKs should have the following error codes:
+Client errors are errors that occur because the client is misconfigured, is used incorrectly, or is in an invalid state. The representation of these errors should contain an error code. The reasons that a client may result in an error will depend on the language and environment, but all SDKs should have the following error codes:
 
 *  ``LoggedOutDuringRequest``
 
@@ -1678,7 +1688,7 @@ Client errors are errors that occur because the client is misconfigured or used 
 
 *  ``UserNoLongerValid``
 
-   + Should be thrown/returned if a client attempts to use a StitchUser object to link to a new identity when that StitchUser has already been logged out.
+   + Should be thrown/returned if a client attempts to use a ``StitchUser`` object to link to a new identity when that ``StitchUser`` has already been logged out.
 
 *  ``CouldNotLoadPersistedAuthInfo``
 
@@ -1718,11 +1728,11 @@ The following SDKs (officially supported by MongoDB) are provided as reference i
 :Java Server SDK: https://github.com/mongodb/stitch-android-sdk/tree/master/server
 :Swift iOS SDK: https://github.com/mongodb/stitch-ios-sdk
 :JavaScript Browser SDK: https://github.com/mongodb/stitch-js-sdk/tree/master/packages/browser/sdk
-:JavaScript Node.js: https://github.com/mongodb/stitch-js-sdk/tree/master/packages/server/sdk
+:JavaScript Node.js SDK: https://github.com/mongodb/stitch-js-sdk/tree/master/packages/server/sdk
 
 Although this specification doesn’t define requirements for internal implementation structure, we recommend that new SDKs base their structure on one of these reference implementations as their modular structure makes it easy to extend the SDK to support new MongoDB Stitch features.
 
-Each reference implementation is also comprehensively tested, and constitutes the test plan for this specification.
+Each reference implementation is also comprehensively tested, and their tests constitute the test plan for this specification.
 
 
 Q & A
