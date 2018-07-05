@@ -6,7 +6,6 @@ Stitch SDK API
 ==============
 
 :Spec: 1
-:Spec Version: 4.0.0
 :Title: Stitch SDK API
 :Authors: Adam Chelminski
 :Advisors: Jason Flax, Eric Daniels
