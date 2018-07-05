@@ -326,7 +326,7 @@ For the methods that make network requests, the following list enumerates how ea
 Service Clients
 ~~~~~~~~~~~~~~~
 
-MongoDB Stitch exposes much of its functionality via "Services". Services provide access via the Stitch server to MongoDB's own services such as MongoDB Atlas, as well access to third-party partner services such as Twilio and AWS S3. Each service should have a service client available constructible from a ``StitchAppClient`` that exposes its functionality.
+MongoDB Stitch exposes much of its functionality via "Services". Services provide access via the Stitch server to MongoDB's own services such as MongoDB Atlas, as well access to third-party partner services such as Twilio and AWS S3. Each service should have a service client constructible from a ``StitchAppClient`` that exposes its functionality.
 
 This specification does not cover exactly how these services should be exposed to end-user developers. However, for each available service there may be a specification that describes how its functionality should be exposed.
 
@@ -599,11 +599,11 @@ An SDK MAY have a ``StitchPush`` interface, which is used for producing push pro
   }
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Sample Push Client Interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+Push Clients
+~~~~~~~~~~~~
 
-The purpose of a push provider client is to register a Stitch user for push notifications that may be sent by another Stitch user or from the Stitch admin console. The push client does not necessarily set up the device to receive the notifications, because that functionality will generally require the use of a third-party SDK from a third-party messaging service.
+The purpose of a push provider client is to register a Stitch user for push notifications that may be sent by another Stitch user or from the Stitch admin console. A push client does not necessarily set up the device to receive the notifications, because that functionality will generally require the use of a third-party SDK from a third-party messaging service.
 
 More commonly, the third-party messaging service will provide a "registration token" or some other unique identifying token for the device, and that token needs to be registered with the currently logged in Stitch user’s device so that push notifications sent to a particular user are also sent to the device with that registration token.
 
@@ -628,6 +628,8 @@ A sample push client implementation is as follows:
        */
       deregister(): void
   }
+
+Push provider clients MUST be offered as pluggable modules and not as part of an SDK's main package, similarly to how `Service Clients`_ must be provided in a pluggable way.
 
 
 Client Configuration
