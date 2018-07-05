@@ -322,6 +322,58 @@ For the methods that make network requests, the following list enumerates how ea
       + The MongoDB Extended JSON representation of the called Stitch function's return value.
 
 
+~~~~~~~~~~~~~~~
+Service Clients
+~~~~~~~~~~~~~~~
+
+MongoDB Stitch exposes much of its functionality via "Services". Services provide access via the Stitch server to MongoDB's own services such as MongoDB Atlas, as well access to third-party partner services such as Twilio and AWS S3. Each service should have a service client available constructible from a ``StitchAppClient`` that exposes its functionality.
+
+This specification does not cover exactly how these services should be exposed to end-user developers. However, for each available service there may be a specification that describes how its functionality should be exposed.
+
+Each service client MUST be packaged independently of a Stitch client SDK's main package, and offered as a pluggable module to that particular client SDK. The pluggable module MUST be compatible with the main client SDK as described in the `Factories`_ section.
+
+In general, service clients will take the form of an interface providing methods that call the service's available functions. The code below shows what a sample service client with two methods may look like.
+
+.. code:: typescript
+
+  interface SampleServiceClient {
+      /** 
+       * (ASYNC ALLOWED, ERROR POSSIBLE)
+       */
+      sampleServiceFunction(sampleArgument: string): number
+
+      /**  
+       * (ASYNC ALLOWED, ERROR POSSIBLE)
+       */
+      otherSampleServiceFunction(sampleArgument: number): string
+  }
+
+Each method of a service client can call the service's available functions with the following request.
+
+*  service function call request
+
+   -  **Authenticated**: yes, with access token
+   -  **Endpoint**: ``POST /api/client/v2.0/app/<client_app_id>/functions/call``
+   -  **Request Body**: 
+
+      + 
+        ::
+            
+            {
+                "service": (name of the service in Stitch),
+                "name": (name of the service function),
+                "arguments": (arguments for the service function)
+            }
+
+      + The arguments field in the request body MUST be encoded as canonical extended JSON. See the specification on `MongoDB Extended JSON <https://github.com/mongodb/specifications/blob/master/source/extended-json.rst>`_ for more information. The contents of the arguments field will depend on the service function being called. See the specification for a particular service for more details about what arguments are expected by a specific service function.
+
+   -  **Response Shape**:
+
+      + The shape of the response will depend on the service function being called, but will generally be in MongoDB Extended JSON if not empty. See the specification for a particular service for more details about what a specific service function returns.
+
+Note that this request is almost identical to the request for a normal Stitch function, with the addition of the ``"service"`` field to the request body.
+
+
 StitchAuth
 ----------
 An SDK MUST have a ``StitchAuth`` interface, which serves as the primary means of authenticating with Stitch and viewing authentication status. A ``StitchAuth`` is considered part of a client, and the term "client" will refer to the combined functionality of the ``StitchAuth`` and the parent ``StitchAppClient``. The following methods and properties MUST be provided, unless otherwise specified in the comment for a particular method:
