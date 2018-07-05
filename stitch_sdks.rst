@@ -9,10 +9,10 @@ Stitch SDK API
 :Title: Stitch SDK API
 :Authors: Adam Chelminski
 :Advisors: Jason Flax, Eric Daniels
-:Status: In Progress
+:Status: Approved
 :Type: Standards
 :Minimum Server Version: cloud-2.0.0
-:Last Modified: July 6, 2018
+:Last Modified: July 5, 2018
 
 .. contents::
 
